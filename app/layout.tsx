@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter, Space_Grotesk } from 'next/font/google'
-import './globals.css'
+import './globals.css' // Make sure this is imported correctly
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/toaster'
 import { cn } from '@/lib/utils'
@@ -65,6 +65,8 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
+        {/* Add this line to force CSS reload */}
+        <link rel="stylesheet" href="/_next/static/css/app/layout.css" precedence="default" />
       </head>
       <body className={cn(
         inter.variable, 
@@ -73,7 +75,7 @@ export default function RootLayout({
         'flex flex-col overflow-x-hidden',
       )}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          <div className="fixed inset-0 z-[-1] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-background via-background to-gray-900/20 dark:from-gray-900 dark:via-background dark:to-background"></div>
+          <div className="fixed inset-0 z-[-1] bg-gradient-to-b from-gray-900 to-background"></div>
           <SiteHeader />
           <main className="flex-1">{children}</main>
           <Toaster />
