@@ -50,7 +50,9 @@ const BlockchainEventMonitor: React.FC<BlockchainEventMonitorProps> = ({
           const contract = await getContract(electionAddress, commonAbi)
 
           // Get current block
-          const currentBlock = await contract.provider.getBlockNumber()
+          // In ethers v6, we need to get provider directly, not via contract.provider
+          const provider = contract.runner
+          const currentBlock = await provider.getBlockNumber()
 
           // Set from block
           const fromBlock = session?.last_block_processed || Math.max(0, currentBlock - 1000)
@@ -98,7 +100,8 @@ const BlockchainEventMonitor: React.FC<BlockchainEventMonitorProps> = ({
             try {
               if (!contractRef.current) return
 
-              const newBlock = await contractRef.current.provider.getBlockNumber()
+              const provider = contractRef.current.runner
+              const newBlock = await provider.getBlockNumber()
 
               if (newBlock > lastBlockProcessed) {
                 // Check for new events
@@ -112,6 +115,9 @@ const BlockchainEventMonitor: React.FC<BlockchainEventMonitorProps> = ({
                     console.warn("Received invalid event during polling in monitor:", event)
                   }
                 }
+                
+                // Update last processed block
+                setLastBlockProcessed(newBlock)
               }
             } catch (error) {
               console.error("Error polling for new events:", error)
@@ -162,9 +168,9 @@ const BlockchainEventMonitor: React.FC<BlockchainEventMonitorProps> = ({
 }
 
 async function getContract(address: string, abi: any) {
-  // @ts-ignore
-  const provider = new ethers.providers.Web3Provider(window.ethereum)
-  const signer = provider.getSigner()
+  // Use ethers v6 BrowserProvider instead of Web3Provider
+  const provider = new ethers.BrowserProvider(window.ethereum)
+  const signer = await provider.getSigner()
   return new ethers.Contract(address, abi, signer)
 }
 
