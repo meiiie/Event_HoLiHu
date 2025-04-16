@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   authors: [{ name: 'HoLiHu Team' }],
   creator: 'HoLiHu Development Team',
   publisher: 'HoLiHu',
-  metadataBase: new URL('https://event-monitor.holihu.online'),
+  metadataBase: new URL('https://event.holihu.online'),
   openGraph: {
     type: 'website',
     title: 'HoLiHu Blockchain Monitor',

@@ -895,8 +895,12 @@ export default function BlockchainMonitorPage() {
                 <SelectItem value="vote">Bỏ phiếu</SelectItem>
                 <SelectItem value="session">Phiên bầu cử</SelectItem>
                 <SelectItem value="candidate">Ứng viên</SelectItem>
+                <SelectItem value="election">Cuộc bầu cử</SelectItem>
                 <SelectItem value="token">Token</SelectItem>
                 <SelectItem value="system">Hệ thống</SelectItem>
+                <SelectItem value="operation">Operation</SelectItem>
+                <SelectItem value="paymaster">Paymaster</SelectItem>
+                <SelectItem value="creation">Creation</SelectItem>
                 <SelectItem value="other">Khác</SelectItem>
               </SelectContent>
             </Select>
