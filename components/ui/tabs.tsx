@@ -38,7 +38,7 @@ const TabsTrigger = React.forwardRef<
     ref={ref}
     className={cn(
       "group relative inline-flex items-center justify-center whitespace-nowrap px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-      (props.value === props["data-state"]) && "text-foreground",
+      (props as { "data-state"?: string })["data-state"] === "active" && "text-foreground",
       showUnderline && "pb-3",
       className
     )}
@@ -50,7 +50,7 @@ const TabsTrigger = React.forwardRef<
     </div>
     {showUnderline && (
       <div className="absolute bottom-0 left-0 h-[2px] w-full">
-        {props["data-state"] === "active" && (
+        {(props as { "data-state"?: string })["data-state"] === "active" && (
           <motion.div
             layoutId="activeTabUnderline"
             className="h-full w-full bg-primary"
