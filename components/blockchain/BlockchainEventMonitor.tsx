@@ -52,6 +52,12 @@ const BlockchainEventMonitor: React.FC<BlockchainEventMonitorProps> = ({
           // Get current block
           // In ethers v6, we need to get provider directly, not via contract.provider
           const provider = contract.runner
+          
+          // Check if provider is available
+          if (!provider) {
+            throw new Error("Provider not available, unable to get blockchain connection")
+          }
+          
           const currentBlock = await provider.getBlockNumber()
 
           // Set from block
@@ -101,6 +107,12 @@ const BlockchainEventMonitor: React.FC<BlockchainEventMonitorProps> = ({
               if (!contractRef.current) return
 
               const provider = contractRef.current.runner
+              // Check if provider is available
+              if (!provider) {
+                console.warn("Provider not available during polling")
+                return
+              }
+              
               const newBlock = await provider.getBlockNumber()
 
               if (newBlock > lastBlockProcessed) {
