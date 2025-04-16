@@ -1,0 +1,10 @@
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.git
+.github
+.next
+node_modules
+README.md
+*.log

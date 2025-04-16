@@ -1,0 +1,18 @@
+{
+  "buildCommand": "pnpm run build",
+  "installCommand": "pnpm install",
+  "framework": "nextjs",
+  "env": {
+    "NEXT_PUBLIC_SUPABASE_URL": "https://wbygabwsqgvszpehwszj.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndieWdhYndzcWd2c3pwZWh3c3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ2ODIwNDcsImV4cCI6MjA2MDI1ODA0N30._MMTef0lOVminPjzqZZQ-UXlbBNpou92xvGEYVkBS7A",
+    "POSTGRES_URL": "postgres://postgres.wbygabwsqgvszpehwszj:7xlLSFUNvL9ueF2K@aws-0-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require&supa=base-pooler.x",
+    "POSTGRES_PRISMA_URL": "postgres://postgres.wbygabwsqgvszpehwszj:7xlLSFUNvL9ueF2K@aws-0-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require&supa=base-pooler.x",
+    "SUPABASE_URL": "https://wbygabwsqgvszpehwszj.supabase.co",
+    "POSTGRES_URL_NON_POOLING": "postgres://postgres.wbygabwsqgvszpehwszj:7xlLSFUNvL9ueF2K@aws-0-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require",
+    "POSTGRES_USER": "postgres",
+    "POSTGRES_PASSWORD": "7xlLSFUNvL9ueF2K",
+    "POSTGRES_DATABASE": "postgres",
+    "POSTGRES_HOST": "db.wbygabwsqgvszpehwszj.supabase.co",
+    "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndieWdhYndzcWd2c3pwZWh3c3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ2ODIwNDcsImV4cCI6MjA2MDI1ODA0N30._MMTef0lOVminPjzqZZQ-UXlbBNpou92xvGEYVkBS7A"
+  }
+}
