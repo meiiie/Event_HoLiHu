@@ -2,6 +2,11 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
 /**
+ * Define the valid event types
+ */
+export type EventType = "vote" | "session" | "candidate" | "election" | "token" | "system" | "operation" | "paymaster" | "creation" | "other";
+
+/**
  * Interface defining the structure of a blockchain event
  */
 export interface BlockchainEvent {
@@ -12,6 +17,8 @@ export interface BlockchainEvent {
   contract_name: string;
   contract_address: string;
   timestamp?: number;
+  data?: Record<string, any>;
+  event_type: EventType;
 }
 
 /**
@@ -85,7 +92,7 @@ export function validateBlockchainEvent(event: Partial<BlockchainEvent>): { vali
 /**
  * Determines the type category of an event based on its name
  */
-export function determineEventType(eventName: string): string {
+export function determineEventType(eventName: string): EventType {
   const lowerCaseName = eventName.toLowerCase();
   
   // EntryPoint contract events
@@ -112,6 +119,10 @@ export function determineEventType(eventName: string): string {
   
   if (lowerCaseName.includes('candidate') || lowerCaseName.includes('ungvien')) {
     return "candidate";
+  }
+
+  if (lowerCaseName.includes('election') || lowerCaseName.includes('cuocbaucu')) {
+    return "election";
   }
   
   if (lowerCaseName.includes('token') || lowerCaseName.includes('transfer') || lowerCaseName.includes('approval')) {
