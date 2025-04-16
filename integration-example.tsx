@@ -36,8 +36,26 @@ const renderBlockchainMonitor = () => {
 // Alternatively, you can add it directly to a specific step:
 // For example, in the 'waiting-results' case of your renderStepContent function:
 
+// Define props interface for the mock component
+interface ElectionResultsWaitingProps {
+  phienBauCu: any;
+  cuocBauCu: any;
+  endTime: Date;
+  userVoteInfo: {
+    hasVoted: boolean;
+    ballotId: number;
+    candidateVoted: string;
+  };
+  votingStats: {
+    totalVoters: number;
+    totalVoted: number;
+    participationPercentage: number;
+  };
+  onSubscribeNotification: () => void;
+}
+
 // Mock declarations for ElectionResultsWaiting component
-const ElectionResultsWaiting = () => <p>Election Results Waiting Component</p>
+const ElectionResultsWaiting: React.FC<ElectionResultsWaitingProps> = (props) => <p>Election Results Waiting Component</p>
 const phienBauCu = {}
 const cuocBauCu = {}
 const electionEndTime = new Date()
