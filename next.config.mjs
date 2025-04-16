@@ -3,7 +3,8 @@ const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ["lucide-react"],
   experimental: {
-    optimizeCss: true,
+    // Make optimizeCss optional to avoid requiring critters
+    optimizeCss: false, // Changed from true to false
     serverComponentsExternalPackages: ["@prisma/client", "@aws-sdk/client-s3"],
   },
   env: {
