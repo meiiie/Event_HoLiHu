@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 import { Inter, Space_Grotesk } from 'next/font/google'
-import '../styles/reset.css'  // Import CSS reset trước
-import './globals.css'       // Sau đó import globals.css
+import '../styles/reset.css'  // Import CSS reset first
+import '../styles/index.css'  // Import our combined CSS file
+import './globals.css'       // Then import globals.css with Tailwind
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/toaster'
 import { cn } from '@/lib/utils'
@@ -70,32 +71,15 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        {/* Thêm viewport meta tag để đảm bảo responsive */}
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="color-scheme" content="light dark" />
-        {/* Không cần thẻ link favicon riêng biệt vì đã định nghĩa trong metadata */}
-        {/* Thêm để debug CSS */}
-        <style dangerouslySetInnerHTML={{ __html: `
-          .css-loaded::after {
-            content: "CSS loaded";
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            background: green;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            z-index: 9999;
-            opacity: 0.7;
-          }
-        `}} />
       </head>
       <body className={cn(
         inter.variable, 
         spaceGrotesk.variable,
         'min-h-screen font-sans antialiased bg-background css-loaded',
         'flex flex-col overflow-x-hidden relative',
+        process.env.NODE_ENV === 'development' ? 'css-debug' : '',
       )}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           {/* Gradient background */}

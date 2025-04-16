@@ -1,0 +1,29 @@
+/* Main CSS imports file - centralizes our CSS dependencies */
+
+/* Reset CSS - provides consistent base styling */
+@import './reset.css';
+
+/* Animation utilities */
+@import './animations.css';
+
+/* Blockchain-specific animations */
+@import './blockchain-animations.css';
+
+/* Import any other CSS files here */
+
+/* Debug utilities - only visible in development */
+.css-debug .blockchain-card {
+  outline: 1px dashed rgba(99, 102, 241, 0.5);
+  position: relative;
+}
+
+.css-debug .blockchain-card::after {
+  content: "blockchain-card";
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 10px;
+  background: rgba(99, 102, 241, 0.2);
+  padding: 2px 4px;
+  color: rgba(99, 102, 241, 1);
+}
