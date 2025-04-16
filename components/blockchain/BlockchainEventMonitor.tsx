@@ -49,8 +49,8 @@ const BlockchainEventMonitor: React.FC<BlockchainEventMonitorProps> = ({
           // Get contract instance
           const contract = await getContract(electionAddress, commonAbi)
           
-          // Get the provider from the getContract function
-          const provider = await ethers.BrowserProvider.fromExisting(window.ethereum)
+          // Get the provider directly - don't use fromExisting which doesn't exist
+          const provider = new ethers.BrowserProvider(window.ethereum)
           
           // Get current block
           const currentBlock = await provider.getBlockNumber()
@@ -102,7 +102,7 @@ const BlockchainEventMonitor: React.FC<BlockchainEventMonitorProps> = ({
               if (!contractRef.current) return
               
               // Create a new provider instance to get the block number
-              const provider = await ethers.BrowserProvider.fromExisting(window.ethereum)
+              const provider = new ethers.BrowserProvider(window.ethereum)
               
               // Get current block number
               const newBlock = await provider.getBlockNumber()
