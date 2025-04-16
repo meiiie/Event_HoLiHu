@@ -2,6 +2,19 @@ import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
 /**
+ * Interface defining the structure of a blockchain event
+ */
+export interface BlockchainEvent {
+  event_id?: string;
+  transaction_hash?: string;
+  block_number: number;
+  event_name: string;
+  contract_name: string;
+  contract_address: string;
+  timestamp?: number;
+}
+
+/**
  * Combines class names using clsx and twMerge
  */
 export function cn(...inputs: ClassValue[]) {

@@ -116,7 +116,7 @@ export default function HomePage() {
       </section>
 
       {/* EntryPoint Section */}
-      <section className="py-12 bg-gradient-to-r from-gray-900/50 to-gray-800/30 rounded-xl p-8 my-8"></section>
+      <section className="py-12 bg-gradient-to-r from-gray-900/50 to-gray-800/30 rounded-xl p-8 my-8">
         <div className="flex flex-col md:flex-row gap-8 items-center">
           <div className="flex-1">
             <Badge className="mb-4 bg-gradient-to-r from-rose-400 to-rose-600 text-white">Mới</Badge>
@@ -150,7 +150,7 @@ export default function HomePage() {
                     { event: "PaymasterXacThucThanhCong", status: "Success" },
                     { event: "TaoNguoiGuiThanhCong", status: "Success" }
                   ].map((item, i) => (
-                    <div key={i} className="flex justify-between items-center p-2 border-b border-gray-800"></div>
+                    <div key={i} className="flex justify-between items-center p-2 border-b border-gray-800">
                       <span className="font-mono text-sm">{item.event}</span>
                       <Badge variant={item.status === "Success" ? "default" : "destructive"} className="text-xs">
                         {item.status}
@@ -184,9 +184,9 @@ export default function HomePage() {
             </Link>
           </Button>
           <Button variant="outline" size="lg" asChild>
-            <a href="https://explorer.holihu.online" target="_blank" rel="noopener noreferrer">
+            <a href="https://event.holihu.online/blockchain-monitor" target="_blank" rel="noopener noreferrer">
               <ExternalLink className="mr-2 h-5 w-5" />
-              HoLiHu Explorer
+              HoLiHu Event Monitor
             </a>
           </Button>
         </div>
@@ -207,7 +207,8 @@ export default function HomePage() {
               "price": "0",
               "priceCurrency": "USD"
             },
-            "description": "Professional blockchain event monitoring and tracking system for the HoLiHu network"
+            "description": "Professional blockchain event monitoring and tracking system for the HoLiHu network",
+            "url": "https://event.holihu.online"
           })
         }}
       />
