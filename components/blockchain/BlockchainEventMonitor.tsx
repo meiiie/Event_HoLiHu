@@ -49,7 +49,11 @@ const BlockchainEventMonitor: React.FC<BlockchainEventMonitorProps> = ({
           // Get contract instance
           const contract = await getContract(electionAddress, commonAbi)
           
-          // Get the provider directly - don't use fromExisting which doesn't exist
+          // Get the provider - with safety checks
+          if (typeof window === 'undefined' || !window.ethereum) {
+            throw new Error("Ethereum provider not available. Please make sure you have a wallet installed.");
+          }
+          
           const provider = new ethers.BrowserProvider(window.ethereum)
           
           // Get current block
@@ -100,6 +104,12 @@ const BlockchainEventMonitor: React.FC<BlockchainEventMonitorProps> = ({
           pollingIntervalRef.current = setInterval(async () => {
             try {
               if (!contractRef.current) return
+              
+              // Check if ethereum provider is available
+              if (typeof window === 'undefined' || !window.ethereum) {
+                console.warn("Ethereum provider not available during polling");
+                return;
+              }
               
               // Create a new provider instance to get the block number
               const provider = new ethers.BrowserProvider(window.ethereum)
@@ -172,10 +182,13 @@ const BlockchainEventMonitor: React.FC<BlockchainEventMonitorProps> = ({
 }
 
 async function getContract(address: string, abi: any) {
+  if (typeof window === 'undefined' || !window.ethereum) {
+    throw new Error("Ethereum provider not available. Please make sure you have a wallet installed.");
+  }
   // Use ethers v6 BrowserProvider instead of Web3Provider
-  const provider = new ethers.BrowserProvider(window.ethereum)
-  const signer = await provider.getSigner()
-  return new ethers.Contract(address, abi, signer)
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  const signer = await provider.getSigner();
+  return new ethers.Contract(address, abi, signer);
 }
 
 export default BlockchainEventMonitor
