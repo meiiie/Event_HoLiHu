@@ -83,11 +83,12 @@ export default function ThamGiaBauCuPage() {
 
       <div className="flex justify-center">
         <Button
-          className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
-          onClick={() => navigate(`/app/user-elections/elections/${cuocBauCuId}`)}
+          variant="outline"
+          onClick={() => navigate("/")}
+          className="flex items-center"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Quay lại trang chủ
+          Trở về trang chủ
         </Button>
       </div>
     </div>

@@ -8,24 +8,25 @@ import { ethers } from "ethers"
 interface BlockchainEventMonitorProps {
   electionAddress: string;
   sessionId: string;
-  getSession: () => Promise<{
+  isActive?: boolean; // Add isActive as an optional prop
+  getSession?: () => Promise<{
     last_block_processed?: number;
     [key: string]: any;
   }>;
-  processEvent: (contractName: string, contractAddress: string, event: any) => Promise<void>;
-  fetchEvents: () => Promise<void>;
-  commonAbi: any[];
+  processEvent?: (contractName: string, contractAddress: string, event: any) => Promise<void>;
+  fetchEvents?: () => Promise<void>;
+  commonAbi?: any[];
 }
 
 const BlockchainEventMonitor: React.FC<BlockchainEventMonitorProps> = ({
   electionAddress,
   sessionId,
-  getSession,
-  processEvent,
-  fetchEvents,
-  commonAbi,
+  isActive = true, // Default to true if not provided
+  getSession = async () => ({}),
+  processEvent = async () => {},
+  fetchEvents = async () => {},
+  commonAbi = [],
 }) => {
-  const [isActive, setIsActive] = useState(true) // Assume active by default, can be controlled by a prop
   const isInitializedRef = useRef(false)
   const [isConnected, setIsConnected] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -183,7 +184,7 @@ const BlockchainEventMonitor: React.FC<BlockchainEventMonitorProps> = ({
       // Reset initialization flag
       isInitializedRef.current = false
     }
-  }, [isActive, electionAddress, sessionId, getSession, processEvent, fetchEvents, lastBlockProcessed])
+  }, [isActive, electionAddress, sessionId, getSession, processEvent, fetchEvents, lastBlockProcessed, commonAbi])
 
   return null
 }
