@@ -6,12 +6,15 @@ import { useEffect, useRef, useState } from "react"
 import { ethers } from "ethers"
 
 interface BlockchainEventMonitorProps {
-  electionAddress: string
-  sessionId: string
-  getSession: () => Promise<any>
-  processEvent: (contractName: string, contractAddress: string, event: any) => Promise<void>
-  fetchEvents: () => Promise<void>
-  commonAbi: any
+  electionAddress: string;
+  sessionId: string;
+  getSession: () => Promise<{
+    last_block_processed?: number;
+    [key: string]: any;
+  }>;
+  processEvent: (contractName: string, contractAddress: string, event: any) => Promise<void>;
+  fetchEvents: () => Promise<void>;
+  commonAbi: any[];
 }
 
 const BlockchainEventMonitor: React.FC<BlockchainEventMonitorProps> = ({
@@ -28,8 +31,8 @@ const BlockchainEventMonitor: React.FC<BlockchainEventMonitorProps> = ({
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [lastBlockProcessed, setLastBlockProcessed] = useState(0)
-  const contractRef = useRef<any>(null)
-  const pollingIntervalRef = useRef<any>(null)
+  const contractRef = useRef<ethers.Contract | null>(null)
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
   // Connect to blockchain and listen for events
   useEffect(() => {
@@ -144,10 +147,14 @@ const BlockchainEventMonitor: React.FC<BlockchainEventMonitorProps> = ({
 
           // Fetch initial events from database
           await fetchEvents()
-        } catch (contractError) {
-          throw new Error(`Không thể kết nối đến hợp đồng: ${contractError.message}`)
+        } catch (contractError: unknown) {
+          // Properly handle unknown type error
+          const errorMessage = contractError instanceof Error 
+            ? contractError.message 
+            : 'Unknown contract error';
+          throw new Error(`Không thể kết nối đến hợp đồng: ${errorMessage}`);
         }
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("Error connecting to blockchain:", error)
         setError(`Không thể kết nối đến blockchain: ${error instanceof Error ? error.message : String(error)}`)
         setIsConnected(false)
@@ -181,7 +188,7 @@ const BlockchainEventMonitor: React.FC<BlockchainEventMonitorProps> = ({
   return null
 }
 
-async function getContract(address: string, abi: any) {
+async function getContract(address: string, abi: any[]): Promise<ethers.Contract> {
   if (typeof window === 'undefined' || !window.ethereum) {
     throw new Error("Ethereum provider not available. Please make sure you have a wallet installed.");
   }
