@@ -30,48 +30,56 @@ export async function getContract(address: string, abi: any[]): Promise<ethers.C
       throw new Error("Provider does not have getBlockNumber method")
     }
 
-    const contract = new ethers.Contract(address, abi, provider)
-
-    // Thêm phương thức hỗ trợ để lấy sự kiện trong khoảng block lớn
-    contract.safeQueryFilter = async (eventFilter: any, fromBlock: number, toBlock: number = "latest") => {
-      // Nếu khoảng quá lớn thì chia nhỏ để tránh lỗi RPC
-      if (toBlock !== "latest") {
-        const blockSpan = toBlock - fromBlock
-        
-        if (blockSpan > MAX_EVENT_BATCH_SIZE) {
-          console.log(`Large block range detected (${blockSpan}), splitting into smaller queries...`)
-          
-          let allEvents: any[] = []
-          let currentFromBlock = fromBlock
-          
-          while (currentFromBlock <= toBlock) {
-            const batchToBlock = Math.min(currentFromBlock + MAX_EVENT_BATCH_SIZE - 1, toBlock)
-            
-            try {
-              console.log(`Querying events from blocks ${currentFromBlock} to ${batchToBlock}...`)
-              const events = await contract.queryFilter(eventFilter, currentFromBlock, batchToBlock)
-              allEvents = [...allEvents, ...events]
-            } catch (error) {
-              console.error(`Error querying events in range ${currentFromBlock}-${batchToBlock}:`, error)
-              // Tiếp tục với batch tiếp theo kể cả khi gặp lỗi
-            }
-            
-            currentFromBlock = batchToBlock + 1
-          }
-          
-          return allEvents
-        }
-      }
-      
-      // Nếu khoảng nhỏ thì truy vấn bình thường
-      return contract.queryFilter(eventFilter, fromBlock, toBlock)
-    }
-
-    return contract
+    return new ethers.Contract(address, abi, provider)
   } catch (error) {
     console.error("Error creating contract:", error)
     throw error
   }
+}
+
+// Safe query filter function for large block ranges
+export async function safeQueryFilter(
+  contract: ethers.Contract, 
+  eventFilter: any, 
+  fromBlock: number, 
+  toBlock: number | string = "latest"
+): Promise<any[]> {
+  // Nếu toBlock là "latest", lấy block number hiện tại
+  if (toBlock === "latest") {
+    toBlock = await getCurrentBlockNumber()
+  }
+
+  // Nếu khoảng quá lớn thì chia nhỏ để tránh lỗi RPC
+  if (typeof toBlock === "number") {
+    const blockSpan = toBlock - fromBlock
+    
+    if (blockSpan > MAX_EVENT_BATCH_SIZE) {
+      console.log(`Large block range detected (${blockSpan}), splitting into smaller queries...`)
+      
+      let allEvents: any[] = []
+      let currentFromBlock = fromBlock
+      
+      while (currentFromBlock <= toBlock) {
+        const batchToBlock = Math.min(currentFromBlock + MAX_EVENT_BATCH_SIZE - 1, toBlock)
+        
+        try {
+          console.log(`Querying events from blocks ${currentFromBlock} to ${batchToBlock}...`)
+          const events = await contract.queryFilter(eventFilter, currentFromBlock, batchToBlock)
+          allEvents = [...allEvents, ...events]
+        } catch (error) {
+          console.error(`Error querying events in range ${currentFromBlock}-${batchToBlock}:`, error)
+          // Tiếp tục với batch tiếp theo kể cả khi gặp lỗi
+        }
+        
+        currentFromBlock = batchToBlock + 1
+      }
+      
+      return allEvents
+    }
+  }
+  
+  // Nếu khoảng nhỏ thì truy vấn bình thường
+  return contract.queryFilter(eventFilter, fromBlock, toBlock)
 }
 
 // Get current block number safely with retry
@@ -117,23 +125,8 @@ export async function getEventsFromContract(
   toBlock: number | string = "latest" 
 ): Promise<any[]> {
   try {
-    // Lấy thông tin block hiện tại nếu toBlock là "latest"
-    if (toBlock === "latest") {
-      toBlock = await getCurrentBlockNumber()
-    }
-    
-    // Đảm bảo fromBlock không vượt quá toBlock
-    if (typeof toBlock === "number" && fromBlock > toBlock) {
-      console.warn(`fromBlock (${fromBlock}) is greater than toBlock (${toBlock}), no events to fetch`)
-      return []
-    }
-    
-    // Dùng safeQueryFilter nếu có, nếu không dùng queryFilter bình thường
-    if (contract.safeQueryFilter) {
-      return await contract.safeQueryFilter("*", fromBlock, toBlock)
-    } else {
-      return await contract.queryFilter("*", fromBlock, toBlock)
-    }
+    // Use the standalone safeQueryFilter function instead of a contract method
+    return await safeQueryFilter(contract, "*", fromBlock, toBlock)
   } catch (error) {
     console.error(`Error getting events from contract ${contract.target}:`, error)
     return []
