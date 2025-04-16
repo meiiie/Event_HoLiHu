@@ -48,16 +48,11 @@ const BlockchainEventMonitor: React.FC<BlockchainEventMonitorProps> = ({
         try {
           // Get contract instance
           const contract = await getContract(electionAddress, commonAbi)
-
+          
+          // Get the provider from the getContract function
+          const provider = await ethers.BrowserProvider.fromExisting(window.ethereum)
+          
           // Get current block
-          // In ethers v6, we need to get provider directly, not via contract.provider
-          const provider = contract.runner
-          
-          // Check if provider is available
-          if (!provider) {
-            throw new Error("Provider not available, unable to get blockchain connection")
-          }
-          
           const currentBlock = await provider.getBlockNumber()
 
           // Set from block
@@ -105,14 +100,11 @@ const BlockchainEventMonitor: React.FC<BlockchainEventMonitorProps> = ({
           pollingIntervalRef.current = setInterval(async () => {
             try {
               if (!contractRef.current) return
-
-              const provider = contractRef.current.runner
-              // Check if provider is available
-              if (!provider) {
-                console.warn("Provider not available during polling")
-                return
-              }
               
+              // Create a new provider instance to get the block number
+              const provider = await ethers.BrowserProvider.fromExisting(window.ethereum)
+              
+              // Get current block number
               const newBlock = await provider.getBlockNumber()
 
               if (newBlock > lastBlockProcessed) {
