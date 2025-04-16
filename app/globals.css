@@ -1,9 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Import animations after Tailwind directives */
 @import '../styles/blockchain-animations.css';
 
-/* Custom styles after Tailwind imports */
+/* Base styles */
 body {
   font-family: var(--font-inter, Arial, sans-serif);
 }
@@ -100,12 +102,11 @@ body {
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
-}
-
-@layer base {
+  
   * {
     @apply border-border;
   }
+  
   body {
     @apply bg-background text-foreground;
   }
@@ -113,7 +114,7 @@ body {
 
 @layer components {
   .blockchain-card {
-    @apply relative overflow-hidden rounded-xl border bg-background p-6 shadow-md transition-all duration-300;
+    @apply relative overflow-hidden rounded-xl border bg-card p-6 shadow-md transition-all duration-300 hover:shadow-lg;
   }
   
   .blockchain-card::before {

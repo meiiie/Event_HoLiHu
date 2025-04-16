@@ -1,13 +1,13 @@
 import type { Metadata } from 'next'
 import { Inter, Space_Grotesk } from 'next/font/google'
-import './globals.css' // Make sure this is imported correctly
+import './globals.css' 
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/toaster'
 import { cn } from '@/lib/utils'
 import { Analytics } from '@/components/analytics'
 import { SiteHeader } from '@/components/site-header'
 
-// Define fonts - Inter for body text, Space Grotesk for headings (blockchain aesthetic)
+// Define fonts - Inter for body text, Space Grotesk for headings
 const inter = Inter({ 
   subsets: ['latin', 'vietnamese'],
   variable: '--font-inter',
@@ -65,8 +65,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
-        {/* Add this line to force CSS reload */}
-        <link rel="stylesheet" href="/_next/static/css/app/layout.css" precedence="default" />
+        {/* Remove the line causing 404 error */}
       </head>
       <body className={cn(
         inter.variable, 
