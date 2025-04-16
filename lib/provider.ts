@@ -73,9 +73,9 @@ export async function getWebSocketProvider(): Promise<ethers.WebSocketProvider> 
       const provider = await connectWithRetry(
         async () => {
           const newProvider = new ethers.WebSocketProvider(WS_ENDPOINT, CHAIN_ID)
-          // Ensure provider is ready
+          // Ensure provider is ready by checking if we can get the block number
           await withTimeout(
-            newProvider.ready,
+            newProvider.getBlockNumber(),
             CONNECTION_TIMEOUT,
             "WebSocket provider connection timeout"
           )
@@ -134,9 +134,9 @@ export async function getHttpProvider(): Promise<ethers.JsonRpcProvider> {
       const provider = await connectWithRetry(
         async () => {
           const newProvider = new ethers.JsonRpcProvider(HTTP_ENDPOINT, CHAIN_ID)
-          // Ensure provider is ready
+          // Ensure provider is ready by checking if we can get the block number
           await withTimeout(
-            newProvider.ready,
+            newProvider.getBlockNumber(),
             CONNECTION_TIMEOUT,
             "HTTP provider connection timeout"
           )
