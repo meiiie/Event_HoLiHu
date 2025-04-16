@@ -7,6 +7,13 @@ import {
 } from "@/lib/supabase"
 import { convertBigIntToString } from "@/utils/utils"
 
+// Define a type for the event statistics query result
+type EventStatisticsData = {
+  contract_name: string;
+  event_type: string;
+  timestamp: number;
+}
+
 export const BlockchainService = {
   // Event methods
   async saveEvent(event: BlockchainEvent): Promise<BlockchainEvent | null> {
@@ -204,7 +211,10 @@ export const BlockchainService = {
       const eventsByType: Record<string, number> = {}
       let lastEventTime = 0
 
-      events?.forEach((event) => {
+      // Type assertion for the events array
+      const typedEvents = events as EventStatisticsData[] || []
+
+      typedEvents.forEach((event) => {
         // Count by contract
         eventsByContract[event.contract_name] = (eventsByContract[event.contract_name] || 0) + 1
 
@@ -219,13 +229,13 @@ export const BlockchainService = {
 
       // Count events in the last hour
       const oneHourAgo = Date.now() - 3600000
-      const eventsPerHour = events?.filter((e) => e.timestamp > oneHourAgo).length || 0
+      const eventsPerHour = typedEvents.filter((e) => e.timestamp > oneHourAgo).length || 0
 
       // Update statistics
       const { data, error } = await supabase
         .from("event_statistics")
         .update({
-          total_events: events?.length || 0,
+          total_events: typedEvents.length || 0,
           events_by_contract: eventsByContract,
           events_by_type: eventsByType,
           events_per_hour: eventsPerHour,
