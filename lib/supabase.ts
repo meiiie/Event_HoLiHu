@@ -25,6 +25,11 @@ try {
       insert: () => Promise.resolve({ data: null, error: null }),
       upsert: () => Promise.resolve({ data: null, error: null }),
       update: () => Promise.resolve({ data: null, error: null }),
+      eq: () => ({ data: null, error: null }),
+      single: () => Promise.resolve({ data: null, error: null }),
+      order: () => ({ data: null, error: null }),
+      limit: () => ({ data: null, error: null }),
+      or: () => ({ data: null, error: null }),
     }),
   } as any
 }

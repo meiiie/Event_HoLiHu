@@ -4,7 +4,7 @@ import {
   type ContractConfig,
   type EventStatistics,
   type BlockchainSession,
-} from "@/utils/supabase"
+} from "@/lib/supabase"
 import { convertBigIntToString } from "@/utils/utils"
 
 export const BlockchainService = {

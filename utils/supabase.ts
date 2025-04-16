@@ -2,7 +2,7 @@ import { createClient } from "@supabase/supabase-js"
 
 // Sử dụng URL và Key từ biến môi trường hoặc giá trị mặc định nếu không có
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://wbygabwsqgvszpehwszj.supabase.co'
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndieWdhYndzcWd2c3pwZWh3c2pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ2ODIwNDcsImV4cCI6MjA2MDI1ODA0N30._MMTef0lOVminPjzqZZQ-UXlbBNpou92xvGEYVkBS7A'
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndieWdhYndzcWd2c3pwZWh3c3pqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ2ODIwNDcsImV4cCI6MjA2MDI1ODA0N30._MMTef0lOVminPjzqZZQ-UXlbBNpou92xvGEYVkBS7A'
 
 const options = {
   auth: {
@@ -24,9 +24,15 @@ try {
       insert: () => Promise.resolve({ data: null, error: null }),
       upsert: () => Promise.resolve({ data: null, error: null }),
       update: () => Promise.resolve({ data: null, error: null }),
+      eq: () => ({ data: null, error: null }),
+      single: () => Promise.resolve({ data: null, error: null }),
+      order: () => ({ data: null, error: null }),
     }),
   } as any
 }
+
+// Nhớ export supabase client để các module khác có thể sử dụng
+export { supabase }
 
 // Types based on our database schema
 export type BlockchainEvent = {
