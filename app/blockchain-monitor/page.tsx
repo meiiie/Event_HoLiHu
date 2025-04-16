@@ -182,7 +182,7 @@ export default function BlockchainMonitorPage() {
   const [searchTerm, setSearchTerm] = useState<string>("")
   const [activeTab, setActiveTab] = useState<string>("events")
   const [contractFilter, setContractFilter] = useState<string>("all")
-  const [eventTypeFilter, setEventTypeFilter] = useState<string | EventType | "all">("all")
+  const [eventTypeFilter, setEventTypeFilter] = useState<"all" | EventType>("all")
   const [timeFilter, setTimeFilter] = useState<string>("all")
   const [stats, setStats] = useState<EventStatistics>({
     id: 1,
