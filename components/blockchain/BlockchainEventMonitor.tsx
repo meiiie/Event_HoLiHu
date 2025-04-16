@@ -22,7 +22,7 @@ const BlockchainEventMonitor: React.FC<BlockchainEventMonitorProps> = ({
   electionAddress,
   sessionId,
   isActive = true, // Default to true if not provided
-  getSession = async () => ({}),
+  getSession = async () => ({ last_block_processed: 0 }), // Provide expected property in default object
   processEvent = async () => {},
   fetchEvents = async () => {},
   commonAbi = [],
