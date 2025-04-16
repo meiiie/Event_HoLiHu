@@ -16,13 +16,13 @@ export function EntryPointDashboard({ events, lastProcessedBlock }: EntryPointDa
   const router = useRouter();
   const entryPointEvents = events.filter(e => 
     e.contract_name === "EntryPoint" || 
-    ["operation", "paymaster", "creation"].includes(e.event_type)
+    ["system", "token", "other"].includes(e.event_type)
   );
   
   // Count different types of events
-  const operationCount = entryPointEvents.filter(e => e.event_type === "operation").length;
-  const paymasterCount = entryPointEvents.filter(e => e.event_type === "paymaster").length;
-  const creationCount = entryPointEvents.filter(e => e.event_type === "creation").length;
+  const operationCount = entryPointEvents.filter(e => e.event_type === "system").length;
+  const paymasterCount = entryPointEvents.filter(e => e.event_type === "token").length;
+  const creationCount = entryPointEvents.filter(e => e.event_type === "other").length;
   
   // Get most recent events
   const recentEvents = entryPointEvents.slice(0, 5);
@@ -82,8 +82,8 @@ export function EntryPointDashboard({ events, lastProcessedBlock }: EntryPointDa
                 <Badge 
                   variant="outline" 
                   className={
-                    event.event_type === "operation" ? "border-rose-200 text-rose-600 dark:border-rose-900 dark:text-rose-400" :
-                    event.event_type === "paymaster" ? "border-cyan-200 text-cyan-600 dark:border-cyan-900 dark:text-cyan-400" :
+                    event.event_type === "system" ? "border-rose-200 text-rose-600 dark:border-rose-900 dark:text-rose-400" :
+                    event.event_type === "token" ? "border-cyan-200 text-cyan-600 dark:border-cyan-900 dark:text-cyan-400" :
                     "border-teal-200 text-teal-600 dark:border-teal-900 dark:text-teal-400"
                   }
                 >
