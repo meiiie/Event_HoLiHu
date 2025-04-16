@@ -61,7 +61,7 @@ import {
 } from "chart.js"
 import { Line, Bar, Pie } from "react-chartjs-2"
 import { getContract, cleanupProviders, getEventsFromContract, CHAIN_ID, getCurrentBlockNumber } from "@/lib/blockchain-provider"
-import { convertBigIntToString, determineEventType, formatEventName, formatTimeAgo } from "@/lib/utils"
+import { convertBigIntToString, determineEventType, formatEventName, formatTimeAgo, EventType } from "@/lib/utils"
 import { CSVLink } from "react-csv"
 
 // Register ChartJS components
@@ -182,7 +182,7 @@ export default function BlockchainMonitorPage() {
   const [searchTerm, setSearchTerm] = useState<string>("")
   const [activeTab, setActiveTab] = useState<string>("events")
   const [contractFilter, setContractFilter] = useState<string>("all")
-  const [eventTypeFilter, setEventTypeFilter] = useState<string>("all")
+  const [eventTypeFilter, setEventTypeFilter] = useState<string | EventType | "all">("all")
   const [timeFilter, setTimeFilter] = useState<string>("all")
   const [stats, setStats] = useState<EventStatistics>({
     id: 1,
@@ -996,11 +996,10 @@ export default function BlockchainMonitorPage() {
                                   </div>
                                 </div>
                               </div>
-
                               <div>
                                 <p className="font-medium text-gray-700 dark:text-gray-300">Dữ liệu sự kiện</p>
                                 <div className="mt-1 space-y-1">
-                                  {Object.entries(event.data).map(([key, value], index) => (
+                                  {Object.entries(event.data || {}).map(([key, value], index) => (
                                     <div key={index} className="flex justify-between">
                                       <span>Tham số {index + 1}:</span>
                                       <span className="font-mono truncate max-w-[200px]">
@@ -1011,7 +1010,6 @@ export default function BlockchainMonitorPage() {
                                 </div>
                               </div>
                             </div>
-
                             <div className="pt-2 flex justify-end">
                               <a
                                 href={getTransactionUrl(event.transaction_hash)}
@@ -1069,7 +1067,6 @@ export default function BlockchainMonitorPage() {
                           </div>
                         </div>
                       ))}
-
                     {Object.keys(stats.events_by_contract || {}).length === 0 && (
                       <p className="text-center text-muted-foreground py-4">
                         Chưa có dữ liệu thống kê theo hợp đồng
@@ -1114,7 +1111,6 @@ export default function BlockchainMonitorPage() {
                           </div>
                         )
                       })}
-
                     {Object.keys(stats.events_by_type || {}).length === 0 && (
                       <p className="text-center text-muted-foreground py-4">
                         Chưa có dữ liệu thống kê theo loại sự kiện
@@ -1143,12 +1139,10 @@ export default function BlockchainMonitorPage() {
                       ).length}
                     </span>
                   </div>
-                  
                   <div className="flex flex-col items-center justify-center p-4 border rounded-lg">
                     <span className="text-muted-foreground mb-1">Sự kiện/giờ</span>
                     <span className="text-4xl font-bold">{stats.events_per_hour}</span>
                   </div>
-                  
                   <div className="flex flex-col items-center justify-center p-4 border rounded-lg">
                     <span className="text-muted-foreground mb-1">Sự kiện gần nhất</span>
                     <span className="text-3xl font-bold">{formatTimeAgo(stats.last_event_time)}</span>
@@ -1470,7 +1464,6 @@ export default function BlockchainMonitorPage() {
               )}
             </CardContent>
           </Card>
-          
           <div className="flex justify-end">
             <Button onClick={refreshConnection}>
               <RefreshCw className="h-4 w-4 mr-2" />
