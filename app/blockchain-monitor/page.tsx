@@ -61,7 +61,10 @@ import {
 } from "chart.js"
 import { Line, Bar, Pie } from "react-chartjs-2"
 import { getContract, cleanupProviders, getEventsFromContract, CHAIN_ID, getCurrentBlockNumber } from "@/lib/blockchain-provider"
-import { convertBigIntToString, determineEventType, formatEventName, formatTimeAgo, EventType } from "@/lib/utils"
+import { convertBigIntToString, determineEventType, formatEventName, formatTimeAgo } from "@/lib/utils"
+
+// Define EventType directly in this file
+type EventType = "system" | "vote" | "session" | "candidate" | "token" | "other" | "election" | "operation" | "paymaster" | "creation"
 import { CSVLink } from "react-csv"
 
 // Register ChartJS components
@@ -386,8 +389,8 @@ export default function BlockchainMonitorPage() {
         transaction_hash: event.transactionHash,
         block_number: Number(event.blockNumber),
         timestamp: Date.now(),
+        event_type: eventType as any as BlockchainEvent["event_type"],
         data: eventData,
-        event_type: eventType,
       }
 
       // Save event to database
@@ -883,7 +886,7 @@ export default function BlockchainMonitorPage() {
             <Select
               value={eventTypeFilter}
               onValueChange={(value) => {
-                setEventTypeFilter(value)
+                setEventTypeFilter(value as "all" | EventType)
                 updateFilteredEvents(events, searchTerm, contractFilter, value, timeFilter)
               }}
             >
