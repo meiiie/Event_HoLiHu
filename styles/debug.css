@@ -1,0 +1,22 @@
+/* File CSS debug để xác định vấn đề style */
+.debug-border * {
+  outline: 1px solid rgba(255, 0, 0, 0.2);
+}
+
+.debug-grid {
+  background-image: linear-gradient(to right, rgba(0, 0, 255, 0.1) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(0, 0, 255, 0.1) 1px, transparent 1px);
+  background-size: 10px 10px;
+}
+
+.debug-info::before {
+  content: "CSS loaded successfully!";
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: #00ff00;
+  color: black;
+  padding: 5px;
+  font-size: 12px;
+  z-index: 9999;
+}

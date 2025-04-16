@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     siteName: 'HoLiHu Event Monitor',
     images: [
       {
-        url: 'https://i.pinimg.com/736x/f5/49/24/f549248b1467667259f113f51ff16f96.jpg',
+        url: '/logo-holihu.jpg', // Sử dụng URL tương đối với fallback nội bộ
         width: 800,
         height: 600,
         alt: 'HoLiHu Blockchain Monitor Logo',
@@ -45,10 +45,13 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'HoLiHu Blockchain Monitor',
     description: 'Professional blockchain event monitoring and tracking system',
-    images: ['https://i.pinimg.com/736x/f5/49/24/f549248b1467667259f113f51ff16f96.jpg'],
+    images: ['/logo-holihu.jpg'], // Sử dụng URL tương đối với fallback nội bộ
   },
   icons: {
-    icon: '/favicon.ico',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon-16x16.png', sizes: '16x16', type: 'image/png' },
+    ],
     shortcut: '/favicon-16x16.png',
     apple: '/apple-touch-icon.png',
   }
@@ -64,13 +67,28 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        {/* Remove the line causing 404 error */}
+        {/* Không cần thẻ link favicon riêng biệt vì đã định nghĩa trong metadata */}
+        {/* Thêm để debug CSS */}
+        <style dangerouslySetInnerHTML={{ __html: `
+          .css-loaded::after {
+            content: "CSS loaded";
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: green;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 9999;
+            opacity: 0.7;
+          }
+        `}} />
       </head>
       <body className={cn(
         inter.variable, 
         spaceGrotesk.variable,
-        'min-h-screen font-sans antialiased bg-background',
+        'min-h-screen font-sans antialiased bg-background css-loaded',
         'flex flex-col overflow-x-hidden',
       )}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>

@@ -12,14 +12,20 @@ export default function HomePage() {
       <section className="py-12 md:py-24 lg:py-32 flex flex-col items-center text-center space-y-10">
         <div className="mx-auto max-w-[800px] space-y-6">
           <div className="flex items-center justify-center mb-8">
-            <Image 
-              src="https://i.pinimg.com/736x/f5/49/24/f549248b1467667259f113f51ff16f96.jpg"
-              alt="HoLiHu Blockchain Monitor Logo"
-              width={120}
-              height={120}
-              className="rounded-full border-4 border-primary/20 shadow-lg"
-              priority
-            />
+            {/* Sử dụng tệp ảnh với xử lý dự phòng */}
+            <div className="w-[120px] h-[120px] rounded-full border-4 border-primary/20 shadow-lg overflow-hidden relative">
+              {/* Sử dụng thẻ div với background-image làm giải pháp dự phòng thay vì Image component */}
+              <div 
+                className="w-full h-full rounded-full bg-gray-700 flex items-center justify-center text-white text-xl font-bold"
+                style={{
+                  backgroundImage: "url('/logo-holihu.jpg')",
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center'
+                }}
+              >
+                HLH
+              </div>
+            </div>
           </div>
           
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl bg-gradient-to-r from-primary to-blue-500 bg-clip-text text-transparent">
@@ -215,5 +221,3 @@ export default function HomePage() {
     </div>
   )
 }
-
-// Remove the duplicate Home function since we already have HomePage as the default export
