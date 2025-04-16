@@ -121,8 +121,8 @@ export default function BlockchainInitPage() {
   }
 
   // Handle initialization error
-  const handleInitError = (error: string) => {
-    setInitError(error)
+  const handleInitError = (error: Error) => {
+    setInitError(error.message)
     setLoading(false)
   }
 
