@@ -1,56 +1,47 @@
 import Link from "next/link"
-import Image from "next/image"
 import { ThemeSwitch } from "@/components/theme-switch"
+import { Activity, Database, Globe } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Activity, Database, LineChart } from "lucide-react"
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center">
-        <div className="mr-4 flex">
+        <div className="mr-6">
           <Link href="/" className="flex items-center space-x-2">
-            <Image 
-              src="https://i.pinimg.com/736x/f5/49/24/f549248b1467667259f113f51ff16f96.jpg"
-              alt="HoLiHu Logo"
-              width={36}
-              height={36}
-              className="rounded-full"
-              priority
-            />
-            <span className="hidden font-bold sm:inline-block">
-              HoLiHu Blockchain Monitor
-            </span>
+            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+              <Activity className="h-4 w-4" />
+            </div>
+            <span className="font-bold hidden md:inline-block">HoLiHu Event Monitor</span>
+            <span className="font-bold md:hidden">HLH</span>
           </Link>
         </div>
         
-        <div className="flex-1 flex items-center justify-between space-x-2 md:justify-end">
-          <nav className="hidden md:flex items-center space-x-1">
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/blockchain-monitor" className="flex items-center">
-                <Activity className="mr-2 h-4 w-4" />
-                Giám sát
-              </Link>
-            </Button>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/blockchain-init" className="flex items-center">
-                <Database className="mr-2 h-4 w-4" />
-                Khởi tạo
-              </Link>
-            </Button>
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/analytics" className="flex items-center">
-                <LineChart className="mr-2 h-4 w-4" />
-                Phân tích
-              </Link>
-            </Button>
-          </nav>
-          
-          <div className="flex items-center">
-            <ThemeSwitch />
-          </div>
+        <nav className="flex-1 flex items-center space-x-1 md:space-x-2">
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/blockchain-monitor">
+              <Activity className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">Giám sát</span>
+            </Link>
+          </Button>
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/blockchain-init">
+              <Database className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">Cấu hình</span>
+            </Link>
+          </Button>
+          <Button variant="ghost" size="sm" asChild>
+            <a href="https://explorer.holihu.online" target="_blank" rel="noopener noreferrer">
+              <Globe className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">Explorer</span>
+            </a>
+          </Button>
+        </nav>
+        
+        <div className="flex items-center">
+          <ThemeSwitch />
         </div>
       </div>
     </header>
-  )
+  );
 }

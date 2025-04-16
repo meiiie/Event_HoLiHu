@@ -3,6 +3,14 @@
 @import 'tailwindcss/utilities';
 @import '../styles/blockchain-animations.css';
 
+/* Reset browser styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Định nghĩa CSS variables */
 :root {
   --background: 0 0% 100%;
   --foreground: 222.2 84% 4.9%;
@@ -74,16 +82,89 @@
   --sidebar-ring: 217.2 91.2% 59.8%;
 }
 
-/* Reset và base styles */
-* {
-  @apply border-border;
+/* Base styles for direct HTML elements */
+html {
+  -webkit-text-size-adjust: 100%;
+  font-feature-settings: "rlig" 1, "calt" 1;
+  text-rendering: optimizeLegibility;
 }
 
 body {
-  @apply bg-background text-foreground font-sans;
-  font-feature-settings: "rlig" 1, "calt" 1;
+  font-family: var(--font-inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif);
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  line-height: 1.5;
+  min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Cải thiện typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-space, var(--font-inter, ui-sans-serif, system-ui));
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+}
+
+h1 {
+  font-size: 2.5rem;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+}
+
+p {
+  margin-bottom: 1rem;
+}
+
+a {
+  color: hsl(var(--primary));
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: hsl(var(--primary), 0.8);
+}
+
+/* Responsive containers */
+.container {
+  width: 100%;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Apply border-box by default */
+*,
+*::before,
+*::after {
+  @apply border-border;
+  box-sizing: border-box;
+}
+
+/* Animation keyframes */
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -99,9 +180,10 @@ body {
   }
 }
 
+/* Custom components */
 @layer components {
   .blockchain-card {
-    @apply relative overflow-hidden rounded-xl border bg-card p-6 shadow-md transition-all duration-300 hover:shadow-lg;
+    @apply relative overflow-hidden rounded-xl border border-border/60 bg-card p-6 shadow-md transition-all duration-300 hover:shadow-lg;
   }
   
   .blockchain-card::before {
@@ -113,7 +195,7 @@ body {
   }
   
   .blockchain-input {
-    @apply relative overflow-hidden rounded-md border border-input focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2;
+    @apply relative overflow-hidden rounded-md border border-input bg-background px-3 py-2 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2;
   }
   
   .blockchain-container {
@@ -137,6 +219,52 @@ body {
   }
   
   .glass-card {
-    @apply bg-background/80 backdrop-blur-md border shadow-lg;
+    @apply bg-background/80 backdrop-blur-md border-white/10 border shadow-lg;
   }
+
+  /* Thêm component mới */
+  .section {
+    @apply py-12;
+  }
+
+  .section-title {
+    @apply text-3xl font-bold mb-6 text-center;
+  }
+
+  .section-description {
+    @apply text-lg text-muted-foreground mb-8 max-w-[700px] mx-auto text-center;
+  }
+
+  .grid-responsive {
+    @apply grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6;
+  }
+
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary to-blue-500 bg-clip-text text-transparent;
+  }
+}
+
+/* Dark mode overrides */
+.dark body {
+  background-image: linear-gradient(to bottom, hsl(222 47% 11%), hsl(222 47% 8%));
+  background-attachment: fixed;
+}
+
+/* Debug indicator for CSS loaded status */
+.css-loaded::after {
+  content: "CSS v1.0.2";
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  background: green;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  z-index: 9999;
+  opacity: 0.7;
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Space_Grotesk } from 'next/font/google'
-import './globals.css' 
+import '../styles/reset.css'  // Import CSS reset trước
+import './globals.css'       // Sau đó import globals.css
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/toaster'
 import { cn } from '@/lib/utils'
@@ -11,11 +12,13 @@ import { SiteHeader } from '@/components/site-header'
 const inter = Inter({ 
   subsets: ['latin', 'vietnamese'],
   variable: '--font-inter',
+  display: 'swap',
 })
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
   variable: '--font-space',
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
@@ -67,6 +70,9 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        {/* Thêm viewport meta tag để đảm bảo responsive */}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="color-scheme" content="light dark" />
         {/* Không cần thẻ link favicon riêng biệt vì đã định nghĩa trong metadata */}
         {/* Thêm để debug CSS */}
         <style dangerouslySetInnerHTML={{ __html: `
@@ -89,12 +95,27 @@ export default function RootLayout({
         inter.variable, 
         spaceGrotesk.variable,
         'min-h-screen font-sans antialiased bg-background css-loaded',
-        'flex flex-col overflow-x-hidden',
+        'flex flex-col overflow-x-hidden relative',
       )}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          <div className="fixed inset-0 z-[-1] bg-gradient-to-b from-gray-900 to-background"></div>
+          {/* Gradient background */}
+          <div className="fixed inset-0 z-[-1] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900/20 via-background to-background"></div>
+          <div className="fixed inset-0 z-[-2] bg-[linear-gradient(to_bottom_right,_var(--tw-gradient-stops))] from-gray-900/5 via-background to-background opacity-30"></div>
+          
           <SiteHeader />
-          <main className="flex-1">{children}</main>
+          <main className="flex-1 relative">{children}</main>
+          
+          <footer className="border-t border-border/30 py-6 px-4">
+            <div className="container flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
+              <p>© 2025 HoLiHu Blockchain. All rights reserved.</p>
+              <div className="flex items-center gap-4">
+                <a href="#" className="hover:text-foreground transition-colors">Terms</a>
+                <a href="#" className="hover:text-foreground transition-colors">Privacy</a>
+                <a href="#" className="hover:text-foreground transition-colors">Contact</a>
+              </div>
+            </div>
+          </footer>
+          
           <Toaster />
           <Analytics />
         </ThemeProvider>
