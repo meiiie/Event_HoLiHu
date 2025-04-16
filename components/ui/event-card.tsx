@@ -2,11 +2,17 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { formatTimeAgo, formatEventName } from "@/lib/utils"
 import type { BlockchainEvent } from "@/lib/supabase"
-import { ExternalLink, ChevronRight, Copy } from "lucide-react"
+import { ExternalLink, ChevronRight, Copy, Info, Tag } from "lucide-react"
 import { Badge } from "./badge"
 import { Button } from "./button"
 import { useToast } from "@/hooks/use-toast"
 import { getTransactionUrl } from "@/lib/contract-addresses"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface EventCardProps extends React.HTMLAttributes<HTMLDivElement> {
   event: BlockchainEvent
@@ -51,6 +57,53 @@ export function EventCard({
       setIsVisible(false)
     }
   }
+
+  // Format event data for better display
+  const formatEventData = (data: any): { key: string, value: string }[] => {
+    if (!data || typeof data !== 'object') return [];
+    
+    return Object.entries(data).map(([key, value], index) => {
+      // Try to guess parameter names based on EntryPoint events
+      let paramName = `Param ${index + 1}`;
+      
+      // Event-specific parameter naming
+      if (event.event_name === 'ThaoTacNguoiDungDuocThucThi' || 
+          event.event_name === 'ThucThiThaoTac') {
+        if (index === 0) paramName = 'Sender';
+        else if (index === 1 && event.event_name === 'ThaoTacNguoiDungDuocThucThi') paramName = 'Nonce';
+        else if ((index === 1 && event.event_name === 'ThucThiThaoTac') || 
+                 (index === 2 && event.event_name === 'ThaoTacNguoiDungDuocThucThi')) paramName = 'Success';
+        else if (index === 2 && event.event_name === 'ThucThiThaoTac') paramName = 'Gas Used';
+      } else if (event.event_name === 'PaymasterXacThucThanhCong') {
+        if (index === 0) paramName = 'Paymaster';
+        else if (index === 1) paramName = 'Sender';
+      } else if (event.event_name === 'TaoNguoiGuiThanhCong') {
+        if (index === 0) paramName = 'Created Address';
+        else if (index === 1) paramName = 'Gas Used';
+      } else if (event.event_name === 'PostOpThatBai') {
+        if (index === 0) paramName = 'Paymaster';
+        else if (index === 1) paramName = 'Nonce';
+        else if (index === 2) paramName = 'Reason';
+      }
+      
+      // Format value based on type
+      let displayValue = '';
+      if (typeof value === 'boolean') {
+        displayValue = value ? 'True' : 'False';
+      } else if (typeof value === 'object') {
+        displayValue = JSON.stringify(value);
+      } else {
+        displayValue = String(value);
+      }
+      
+      return { 
+        key: paramName, 
+        value: displayValue
+      };
+    });
+  };
+  
+  const formattedData = formatEventData(event.data);
   
   return (
     <div
@@ -90,7 +143,7 @@ export function EventCard({
         <div
           className={cn(
             "mt-4 pt-4 border-t text-sm overflow-hidden transition-all duration-200",
-            isExpanded ? "opacity-100 max-h-[500px]" : "opacity-0 max-h-0"
+            isExpanded ? "opacity-100 max-h-[800px]" : "opacity-0 max-h-0"
           )}
           onTransitionEnd={handleTransitionEnd}
         >
@@ -100,6 +153,13 @@ export function EventCard({
               
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">Contract:</span>
+                  <div className="flex items-center">
+                    <span className="font-medium">{event.contract_name}</span>
+                  </div>
+                </div>
+                
+                <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Block:</span>
                   <div className="flex items-center">
                     <span className="font-mono">{event.block_number}</span>
@@ -107,7 +167,10 @@ export function EventCard({
                       variant="ghost" 
                       size="icon" 
                       className="h-5 w-5 ml-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => copyToClipboard(event.block_number.toString(), "Block number")}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        copyToClipboard(event.block_number.toString(), "Block number");
+                      }}
                     >
                       <Copy className="h-3 w-3" />
                     </Button>
@@ -124,7 +187,10 @@ export function EventCard({
                       variant="ghost" 
                       size="icon" 
                       className="h-5 w-5 ml-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => copyToClipboard(event.transaction_hash, "Transaction hash")}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        copyToClipboard(event.transaction_hash, "Transaction hash");
+                      }}
                     >
                       <Copy className="h-3 w-3" />
                     </Button>
@@ -142,6 +208,7 @@ export function EventCard({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center mt-3 text-xs text-primary hover:text-primary/80 transition-colors"
+                onClick={(e) => e.stopPropagation()}
               >
                 View on Explorer
                 <ExternalLink className="h-3 w-3 ml-1" />
@@ -150,15 +217,43 @@ export function EventCard({
             
             <div>
               <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-2">Event Data</h4>
-              <div className="space-y-2 max-h-[200px] overflow-y-auto pr-2 styled-scrollbar">
-                {Object.entries(event.data).map(([key, value], index) => (
+              <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 styled-scrollbar">
+                {formattedData.map((item, index) => (
                   <div key={index} className="flex justify-between items-start">
-                    <span className="text-muted-foreground">{`Param ${index + 1}:`}</span>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div className="flex items-center">
+                            <span className="text-muted-foreground">{item.key}:</span>
+                            <Info className="h-3 w-3 ml-1 text-muted-foreground/50 cursor-help" />
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Parameter {index} of {event.event_name} event</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                    
                     <span className="font-mono text-xs truncate max-w-[180px] text-right">
-                      {typeof value === "object" ? JSON.stringify(value) : String(value)}
+                      {/* Format based on value type */}
+                      {item.value.startsWith('0x') ? (
+                        <Badge variant="outline" className="font-mono">
+                          {item.value.length > 10 ? 
+                            `${item.value.substring(0, 6)}...${item.value.substring(item.value.length - 4)}` : 
+                            item.value}
+                        </Badge>
+                      ) : (
+                        item.value
+                      )}
                     </span>
                   </div>
                 ))}
+
+                {formattedData.length === 0 && (
+                  <div className="text-center py-2 text-muted-foreground">
+                    No data parameters available
+                  </div>
+                )}
               </div>
             </div>
           </div>

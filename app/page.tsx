@@ -1,67 +1,216 @@
-"use client"
-
-import { useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Loader2, Activity } from "lucide-react"
-import Head from "next/head"
+import Link from "next/link"
+import Image from "next/image"
+import { Activity, Database, BarChart2, ArrowRight, ExternalLink, Shield, Terminal } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 
 export default function HomePage() {
-  const router = useRouter()
-
-  useEffect(() => {
-    // Check if blockchain is initialized
-    const checkInitialization = async () => {
-      try {
-        const response = await fetch("/api/blockchain/contracts")
-
-        if (response.ok) {
-          const data = await response.json()
-
-          if (data.length > 0) {
-            // If initialized, go to monitor page
-            router.push("/blockchain-monitor")
-          } else {
-            // If not initialized, go to init page
-            router.push("/blockchain-init")
-          }
-        } else {
-          // If error, go to init page
-          router.push("/blockchain-init")
-        }
-      } catch (error) {
-        console.error("Error checking initialization:", error)
-        router.push("/blockchain-init")
-      }
-    }
-
-    checkInitialization()
-  }, [router])
-
   return (
-    <>
-      <Head>
-        <title>Event HoLiHu - Giám sát blockchain</title>
-        <meta name="description" content="Hệ thống giám sát và phân tích sự kiện blockchain trên mạng HoLiHu" />
-        <meta name="keywords" content="blockchain, ethereum, events, smart contracts, monitoring, HoLiHu" />
-      </Head>
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-background to-muted/20">
-        <div className="flex flex-col items-center text-center max-w-md mx-auto px-4">
-          <div className="relative mb-6">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary opacity-20 blur-xl rounded-full"></div>
-            <div className="relative bg-background p-4 rounded-full border shadow-md">
-              <Activity className="h-12 w-12 text-primary" />
-            </div>
+    <div className="container mx-auto px-4 py-12">
+      {/* Hero Section */}
+      <section className="py-12 md:py-24 lg:py-32 flex flex-col items-center text-center space-y-10">
+        <div className="mx-auto max-w-[800px] space-y-6">
+          <div className="flex items-center justify-center mb-8">
+            <Image 
+              src="https://i.pinimg.com/736x/f5/49/24/f549248b1467667259f113f51ff16f96.jpg"
+              alt="HoLiHu Blockchain Monitor Logo"
+              width={120}
+              height={120}
+              className="rounded-full border-4 border-primary/20 shadow-lg"
+              priority
+            />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight mb-2">Event HoLiHu</h1>
-          <p className="text-muted-foreground mb-8">
-            Hệ thống giám sát sự kiện blockchain trên mạng HoLiHu
+          
+          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl bg-gradient-to-r from-primary to-blue-500 bg-clip-text text-transparent">
+            HoLiHu Blockchain Event Monitor
+          </h1>
+          
+          <p className="mx-auto max-w-[700px] text-lg text-muted-foreground md:text-xl">
+            Hệ thống giám sát blockchain chuyên nghiệp cho mạng HoLiHu. 
+            Theo dõi, phân tích và quản lý các sự kiện blockchain trong thời gian thực.
           </p>
-          <div className="flex items-center space-x-4">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
-            <p className="text-lg">Đang tải ứng dụng...</p>
+          
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <Button asChild size="lg">
+              <Link href="/blockchain-monitor">
+                <Activity className="mr-2 h-5 w-5" /> 
+                Truy cập bảng điều khiển
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="lg">
+              <Link href="/blockchain-init">
+                <Database className="mr-2 h-5 w-5" /> 
+                Khởi tạo kết nối
+              </Link>
+            </Button>
           </div>
         </div>
-      </div>
-    </>
+      </section>
+
+      {/* Feature Cards */}
+      <section className="py-12">
+        <h2 className="text-3xl font-bold text-center mb-12">Tính năng nổi bật</h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Card className="hover:shadow-lg transition-all duration-200">
+            <CardHeader>
+              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                <Activity className="h-6 w-6 text-primary" />
+              </div>
+              <CardTitle>Giám sát sự kiện</CardTitle>
+              <CardDescription>Theo dõi các sự kiện blockchain trên mạng HoLiHu trong thời gian thực</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p>Giám sát đầy đủ các hoạt động trên chuỗi, bao gồm các sự kiện hợp đồng thông minh, giao dịch và các hoạt động quản trị.</p>
+            </CardContent>
+            <CardFooter>
+              <Button variant="ghost" size="sm" className="gap-1" asChild>
+                <Link href="/blockchain-monitor">
+                  Khám phá <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </CardFooter>
+          </Card>
+          
+          <Card className="hover:shadow-lg transition-all duration-200">
+            <CardHeader>
+              <div className="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center mb-4">
+                <BarChart2 className="h-6 w-6 text-blue-500" />
+              </div>
+              <CardTitle>Phân tích dữ liệu</CardTitle>
+              <CardDescription>Biểu đồ và các công cụ phân tích trực quan</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p>Nắm bắt xu hướng quan trọng và hiểu rõ hoạt động blockchain với các phân tích trực quan cao cấp.</p>
+            </CardContent>
+            <CardFooter>
+              <Button variant="ghost" size="sm" className="gap-1" asChild>
+                <Link href="/blockchain-monitor?tab=charts">
+                  Xem biểu đồ <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </CardFooter>
+          </Card>
+          
+          <Card className="hover:shadow-lg transition-all duration-200">
+            <CardHeader>
+              <div className="w-12 h-12 rounded-lg bg-rose-500/10 flex items-center justify-center mb-4">
+                <Terminal className="h-6 w-6 text-rose-500" />
+              </div>
+              <CardTitle>Smart Account Operations</CardTitle>
+              <CardDescription>Theo dõi hoạt động của tài khoản thông minh EIP-4337</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p>Giám sát các hoạt động của EntryPoint, Paymaster và sự kiện tạo tài khoản người dùng.</p>
+            </CardContent>
+            <CardFooter>
+              <Button variant="ghost" size="sm" className="gap-1" asChild>
+                <Link href="/blockchain-monitor?contract=EntryPoint">
+                  Xem EntryPoint <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+      </section>
+
+      {/* EntryPoint Section */}
+      <section className="py-12 bg-gradient-to-r from-gray-900/50 to-gray-800/30 rounded-xl p-8 my-8"></section>
+        <div className="flex flex-col md:flex-row gap-8 items-center">
+          <div className="flex-1">
+            <Badge className="mb-4 bg-gradient-to-r from-rose-400 to-rose-600 text-white">Mới</Badge>
+            <h2 className="text-3xl font-bold mb-4">Giám sát EntryPoint</h2>
+            <p className="text-muted-foreground mb-6">
+              Theo dõi chi tiết các hoạt động của hợp đồng EntryPoint EIP-4337 trên mạng HoLiHu. 
+              Giám sát các sự kiện User Operation, Paymaster và quá trình tạo tài khoản.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Badge variant="outline" className="px-3 py-1">
+                <Shield className="mr-1 h-3 w-3" /> Paymaster
+              </Badge>
+              <Badge variant="outline" className="px-3 py-1">
+                <Terminal className="mr-1 h-3 w-3" /> User Operations
+              </Badge>
+              <Badge variant="outline" className="px-3 py-1">
+                <Activity className="mr-1 h-3 w-3" /> Account Creation
+              </Badge>
+            </div>
+          </div>
+          <div className="flex-1">
+            <Card className="bg-black/30 border-gray-800">
+              <CardHeader>
+                <CardTitle>EntryPoint Events</CardTitle>
+                <CardDescription>Recently monitored activities</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {[
+                    { event: "ThaoTacNguoiDungDuocThucThi", status: "Success" },
+                    { event: "PaymasterXacThucThanhCong", status: "Success" },
+                    { event: "TaoNguoiGuiThanhCong", status: "Success" }
+                  ].map((item, i) => (
+                    <div key={i} className="flex justify-between items-center p-2 border-b border-gray-800"></div>
+                      <span className="font-mono text-sm">{item.event}</span>
+                      <Badge variant={item.status === "Success" ? "default" : "destructive"} className="text-xs">
+                        {item.status}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button variant="secondary" size="sm" className="w-full" asChild>
+                  <Link href="/blockchain-monitor?tab=events&contract=EntryPoint">
+                    Xem tất cả sự kiện EntryPoint
+                  </Link>
+                </Button>
+              </CardFooter>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-12 flex flex-col items-center text-center">
+        <h2 className="text-3xl font-bold mb-6">Bắt đầu giám sát ngay hôm nay</h2>
+        <p className="text-lg text-muted-foreground mb-8 max-w-[600px]">
+          Kết nối với blockchain HoLiHu và bắt đầu giám sát các sự kiện từ các hợp đồng thông minh của bạn.
+        </p>
+        <div className="flex gap-4">
+          <Button asChild size="lg">
+            <Link href="/blockchain-monitor">
+              Truy cập bảng điều khiển
+            </Link>
+          </Button>
+          <Button variant="outline" size="lg" asChild>
+            <a href="https://explorer.holihu.online" target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="mr-2 h-5 w-5" />
+              HoLiHu Explorer
+            </a>
+          </Button>
+        </div>
+      </section>
+
+      {/* Schema.org Structured Data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "name": "HoLiHu Blockchain Monitor",
+            "applicationCategory": "BusinessApplication",
+            "operatingSystem": "Web",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "description": "Professional blockchain event monitoring and tracking system for the HoLiHu network"
+          })
+        }}
+      />
+    </div>
   )
 }

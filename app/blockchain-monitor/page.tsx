@@ -153,6 +153,14 @@ const CONTRACT_ABIS = {
     "event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId)",
     "event ApprovalForAll(address indexed owner, address indexed operator, bool approved)",
   ],
+  EntryPoint: [
+    "event ThaoTacNguoiDungDuocThucThi(address indexed sender, uint256 nonce, bool thanhCong)",
+    "event PaymasterThemVaoTrangDanhSach(address indexed paymaster)",
+    "event ThucThiThaoTac(address indexed sender, bool thanhCong, uint256 gasSuDung)",
+    "event PostOpThatBai(address indexed paymaster, uint256 nonce, string lyDo)",
+    "event PaymasterXacThucThanhCong(address indexed paymaster, address indexed sender)",
+    "event TaoNguoiGuiThanhCong(address indexed nguoiGui, uint256 gasUsed)"
+  ],
 }
 
 // Tùy chọn khoảng thời gian cho filter
@@ -602,21 +610,29 @@ export default function BlockchainMonitorPage() {
     setFilteredEvents(filtered)
   }
 
-  // Format event type
+  // Format event type with enhanced styling
   const formatEventType = (type: string) => {
     switch (type) {
       case "vote":
-        return { label: "Bỏ phiếu", color: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300" }
+        return { label: "Vote", color: "bg-gradient-to-r from-green-400 to-emerald-500 text-white" }
       case "session":
-        return { label: "Phiên bầu cử", color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300" }
+        return { label: "Session", color: "bg-gradient-to-r from-blue-400 to-blue-600 text-white" }
       case "candidate":
-        return { label: "Ứng viên", color: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300" }
+        return { label: "Candidate", color: "bg-gradient-to-r from-purple-400 to-purple-600 text-white" }
+      case "election":
+        return { label: "Election", color: "bg-gradient-to-r from-indigo-400 to-indigo-600 text-white" }
       case "token":
-        return { label: "Token", color: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300" }
+        return { label: "Token", color: "bg-gradient-to-r from-amber-400 to-amber-600 text-white" }
       case "system":
-        return { label: "Hệ thống", color: "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300" }
+        return { label: "System", color: "bg-gradient-to-r from-sky-400 to-sky-600 text-white" }
+      case "operation":
+        return { label: "Operation", color: "bg-gradient-to-r from-rose-400 to-rose-600 text-white" }
+      case "paymaster":
+        return { label: "Paymaster", color: "bg-gradient-to-r from-cyan-400 to-cyan-600 text-white" }
+      case "creation":
+        return { label: "Creation", color: "bg-gradient-to-r from-teal-400 to-teal-600 text-white" }
       default:
-        return { label: "Khác", color: "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300" }
+        return { label: "Other", color: "bg-gradient-to-r from-gray-500 to-gray-700 text-white" }
     }
   }
 

@@ -1,53 +1,40 @@
-import { type ClassValue, clsx } from "clsx"
+import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import type { BlockchainEvent } from "@/lib/supabase"
 
+/**
+ * Combines class names using clsx and twMerge
+ */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
 /**
- * Recursively converts BigInt values to strings in an object or array
- * This is useful for serializing blockchain data that contains BigInt values
+ * Converts BigInt values in an object to string to make them serializable
  */
-export function convertBigIntToString(value: any): any {
-  if (value === null || value === undefined) {
-    return value
+export function convertBigIntToString(obj: any): any {
+  if (obj === null || obj === undefined) {
+    return obj;
   }
 
-  // Handle BigInt values
-  if (typeof value === 'bigint') {
-    return value.toString()
+  if (typeof obj === 'bigint') {
+    return obj.toString();
   }
 
-  // Handle arrays by mapping over each item
-  if (Array.isArray(value)) {
-    return value.map(item => convertBigIntToString(item))
+  if (Array.isArray(obj)) {
+    return obj.map(convertBigIntToString);
   }
 
-  // Handle Date objects
-  if (value instanceof Date) {
-    return value.toISOString()
-  }
-
-  // Handle Buffer or Uint8Array (common in blockchain data)
-  if (value instanceof Uint8Array || Buffer.isBuffer(value)) {
-    // Convert to hex string prefixed with 0x
-    return '0x' + Buffer.from(value).toString('hex')
-  }
-
-  // Handle plain objects recursively
-  if (typeof value === 'object') {
-    const result: Record<string, any> = {}
-    for (const key in value) {
-      if (Object.prototype.hasOwnProperty.call(value, key)) {
-        result[key] = convertBigIntToString(value[key])
+  if (typeof obj === 'object') {
+    const result: Record<string, any> = {};
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        result[key] = convertBigIntToString(obj[key]);
       }
     }
-    return result
+    return result;
   }
 
-  return value
+  return obj;
 }
 
 /**
@@ -83,136 +70,143 @@ export function validateBlockchainEvent(event: Partial<BlockchainEvent>): { vali
 }
 
 /**
- * Determines the event type based on the event name
+ * Determines the type category of an event based on its name
  */
-export function determineEventType(eventName: string): BlockchainEvent["event_type"] {
-  if (!eventName) return "other"
+export function determineEventType(eventName: string): string {
+  const lowerCaseName = eventName.toLowerCase();
   
-  const name = eventName.toLowerCase()
+  // EntryPoint contract events
+  if (lowerCaseName.includes('thaotuoc') || lowerCaseName.includes('thucthi')) {
+    return "operation";
+  }
   
-  if (name.includes("phieubau") || name.includes("phieubo") || name.includes("phieudabo") || name.includes("phieudaghinhan")) {
-    return "vote"
+  if (lowerCaseName.includes('paymaster')) {
+    return "paymaster";
   }
-
-  if (name.includes("phienbaucu") || name.includes("taibaucu") || name.includes("hoaphieu")) {
-    return "session"
+  
+  if (lowerCaseName.includes('tao') && lowerCaseName.includes('nguoigui')) {
+    return "creation";
   }
-
-  if (name.includes("ungvien") || name.includes("cutri")) {
-    return "candidate"
+  
+  // Original event types
+  if (lowerCaseName.includes('vote') || lowerCaseName.includes('ballot') || lowerCaseName.includes('phieubau')) {
+    return "vote";
   }
-
-  if (
-    name.includes("cuocbaucu") ||
-    name.includes("server") ||
-    name.includes("hethong") ||
-    name.includes("vaitro") ||
-    name.includes("baocao")
-  ) {
-    return "system"
+  
+  if (lowerCaseName.includes('session') || lowerCaseName.includes('phien')) {
+    return "session";
   }
-
-  if (
-    name.includes("transfer") ||
-    name.includes("approval") ||
-    name.includes("hlu") ||
-    name.includes("token") ||
-    name.includes("nft")
-  ) {
-    return "token"
+  
+  if (lowerCaseName.includes('candidate') || lowerCaseName.includes('ungvien')) {
+    return "candidate";
   }
-
-  return "other"
+  
+  if (lowerCaseName.includes('token') || lowerCaseName.includes('transfer') || lowerCaseName.includes('approval')) {
+    return "token";
+  }
+  
+  if (lowerCaseName.includes('system') || lowerCaseName.includes('hethong')) {
+    return "system";
+  }
+  
+  // If no specific category is found
+  return "other";
 }
 
 /**
  * Format event name for display
  */
-export function formatEventName(name: string): string {
-  if (!name) return "Không xác định"
+export function formatEventName(eventName: string): string {
+  // Remove common prefixes if present
+  let formattedName = eventName.replace(/^event/i, "").trim();
   
-  // Mapping of event names to display names
-  const eventNameMap: Record<string, string> = {
-    // QuanLyCuocBauCu events
-    CuocBauCuDaTao: "Cuộc bầu cử đã tạo",
-    CuocBauCuDaBatDau: "Cuộc bầu cử đã bắt đầu",
-    CuocBauCuDaKetThuc: "Cuộc bầu cử đã kết thúc",
-    CuocBauCuDaHuy: "Cuộc bầu cử đã hủy",
-    CuocBauCuDaXoa: "Cuộc bầu cử đã xóa",
-    PhienBauCuDaTao: "Phiên bầu cử đã tạo",
-    PhienBauCuDaBatDau: "Phiên bầu cử đã bắt đầu",
-    PhienBauCuDaKetThuc: "Phiên bầu cử đã kết thúc",
-    PhienBauCuDaHuy: "Phiên bầu cử đã hủy",
-    HoaPhieuBaoCao: "Báo cáo hòa phiếu",
-    UngVienDaThem: "Ứng viên đã thêm",
-    CuTriDaThem: "Cử tri đã thêm",
-    PhieuBauDaGhiNhan: "Phiếu bầu đã ghi nhận",
-    XacNhanTaiBauCu: "Xác nhận tái bầu cử",
-    TaiBauCuDaDuocDuyet: "Tái bầu cử đã được duyệt",
-    VaiTroDuocCap: "Vai trò được cấp",
-    VaiTroBiThuHoi: "Vai trò bị thu hồi",
-    HLUTruPhi: "HLU trừ phí",
-    HLUHoanTien: "HLU hoàn tiền",
-
-    // QuanLyPhieuBauToanCuc events
-    PhieuBauDaCap: "Phiếu bầu đã cấp",
-    PhieuDaBo: "Phiếu đã bỏ",
-    NFTDaThuHoi: "NFT đã thu hồi",
-
-    // QuanLyThanhTuuToanCuc events
-    ThanhTuuDaCap: "Thành tựu đã cấp",
-    QuanLyPhieuBauDaCapNhat: "Quản lý phiếu bầu đã cập nhật",
-
-    // CuocBauCuFactory events
-    ServerDaTao: "Server đã tạo",
-    CuocBauCuDaLuuTru: "Cuộc bầu cử đã lưu trữ",
-    CuocBauCuDaTamDung: "Cuộc bầu cử đã tạm dừng",
-    CuocBauCuDaKhoiPhuc: "Cuộc bầu cử đã khôi phục",
-    BaoCaoViPhamDaNhan: "Báo cáo vi phạm đã nhận",
-    BaoCaoDaXuLy: "Báo cáo đã xử lý",
-    HeThongDaTamDung: "Hệ thống đã tạm dừng",
-    HeThongDaTiepTuc: "Hệ thống đã tiếp tục",
-    MauDaCapNhat: "Mẫu đã cập nhật",
-    VaiTroTrustSafetyDaCap: "Vai trò Trust & Safety đã cấp",
-    VaiTroTrustSafetyDaThuHoi: "Vai trò Trust & Safety đã thu hồi",
-    YeuCauCapNhatMau: "Yêu cầu cập nhật mẫu",
-    SimpleAccountDaTao: "Simple Account đã tạo",
-
-    // ERC20/721 events
-    Transfer: "Chuyển token",
-    Approval: "Phê duyệt",
-    ApprovalForAll: "Phê duyệt tất cả",
-    
-    // HoLiHu Token events
-    PhiDaThu: "Phí đã thu",
-    GiamPhiDaDat: "Giảm phí đã đặt",
-    CapNhatPhiChuyen: "Cập nhật phí chuyển",
-    CapNhatDiaChiNhanPhi: "Cập nhật địa chỉ nhận phí",
-    ChuyenVaiTroAdmin: "Chuyển vai trò admin",
-    TaiKhoanBiDanhDauDeDot: "Tài khoản bị đánh dấu để đốt",
+  // Add spaces before capital letters and numbers
+  formattedName = formattedName.replace(/([A-Z])/g, " $1").trim();
+  
+  // Capitalize first letter
+  formattedName = formattedName.charAt(0).toUpperCase() + formattedName.slice(1);
+  
+  // Special case for EntryPoint contract event names (translate from Vietnamese)
+  const translations: Record<string, string> = {
+    "Thao Tac Nguoi Dung Duoc Thuc Thi": "User Operation Executed",
+    "Paymaster Them Vao Trang Danh Sach": "Paymaster Whitelisted",
+    "Thuc Thi Thao Tac": "Operation Executed",
+    "Post Op That Bai": "Post Operation Failed",
+    "Paymaster Xac Thuc Thanh Cong": "Paymaster Validation Successful",
+    "Tao Nguoi Gui Thanh Cong": "Sender Creation Successful"
+  };
+  
+  if (translations[formattedName]) {
+    return translations[formattedName];
   }
-
-  return eventNameMap[name] || name
+  
+  return formattedName;
 }
 
 /**
- * Format time ago from timestamp
+ * Format relative time for display
  */
 export function formatTimeAgo(timestamp: number): string {
-  if (!timestamp) return "Chưa có"
-
-  const seconds = Math.floor((Date.now() - timestamp) / 1000)
-
-  if (seconds < 60) return `${seconds} giây trước`
-  if (seconds < 3600) return `${Math.floor(seconds / 60)} phút trước`
-  if (seconds < 86400) return `${Math.floor(seconds / 3600)} giờ trước`
-  if (seconds < 604800) return `${Math.floor(seconds / 86400)} ngày trước`
+  if (!timestamp) return 'Never';
   
-  // Format date for older events
-  const date = new Date(timestamp)
-  return date.toLocaleDateString('vi-VN', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
+  const now = Date.now();
+  const secondsAgo = Math.floor((now - timestamp) / 1000);
+  
+  if (secondsAgo < 60) {
+    return `${secondsAgo} giây trước`;
+  }
+  
+  const minutesAgo = Math.floor(secondsAgo / 60);
+  if (minutesAgo < 60) {
+    return `${minutesAgo} phút trước`;
+  }
+  
+  const hoursAgo = Math.floor(minutesAgo / 60);
+  if (hoursAgo < 24) {
+    return `${hoursAgo} giờ trước`;
+  }
+  
+  const daysAgo = Math.floor(hoursAgo / 24);
+  if (daysAgo < 7) {
+    return `${daysAgo} ngày trước`;
+  }
+  
+  const date = new Date(timestamp);
+  return date.toLocaleDateString('vi-VN');
+}
+
+/**
+ * SEO-friendly URL slug generator
+ */
+export function generateSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/--+/g, '-')
+    .trim();
+}
+
+/**
+ * Generate structured data for SEO
+ */
+export function generateEventStructuredData(event: any) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    'name': formatEventName(event.event_name),
+    'startDate': new Date(event.timestamp).toISOString(),
+    'location': {
+      '@type': 'VirtualLocation',
+      'url': `https://explorer.holihu.online/tx/${event.transaction_hash}`
+    },
+    'organizer': {
+      '@type': 'Organization',
+      'name': 'HoLiHu Blockchain',
+      'url': 'https://holihu.online'
+    },
+    'description': `Blockchain event ${event.event_name} from contract ${event.contract_name}`
+  }
 }
