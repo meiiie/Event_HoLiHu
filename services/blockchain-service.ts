@@ -229,13 +229,13 @@ export const BlockchainService = {
 
       // Count events in the last hour
       const oneHourAgo = Date.now() - 3600000
-      const eventsPerHour = typedEvents.filter((e) => e.timestamp > oneHourAgo).length || 0
+      const eventsPerHour = typedEvents.filter((e) => e.timestamp > oneHourAgo).length
 
       // Update statistics
       const { data, error } = await supabase
         .from("event_statistics")
         .update({
-          total_events: typedEvents.length || 0,
+          total_events: typedEvents.length,
           events_by_contract: eventsByContract,
           events_by_type: eventsByType,
           events_per_hour: eventsPerHour,
