@@ -1,6 +1,6 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import "../../styles/main.css"
+import "../../styles/main.css" // Đảm bảo CSS được import
 
 const Card = React.forwardRef<
   HTMLDivElement,

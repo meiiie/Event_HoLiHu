@@ -13,7 +13,11 @@ const config: Config = {
   theme: {
     container: {
       center: true,
-      padding: "2rem",
+      padding: {
+        DEFAULT: "1rem",
+        sm: "1.5rem",
+        lg: "2rem"
+      },
       screens: {
         "2xl": "1400px",
       },
@@ -99,6 +103,20 @@ const config: Config = {
   },
   plugins: [
     require("tailwindcss-animate"),
+    function({ addUtilities }) {
+      // Thêm các utilities đặc biệt để đảm bảo container hoạt động
+      const newUtilities = {
+        '.container-fix': {
+          width: '100%',
+          maxWidth: '100vw',
+          overflowX: 'hidden'
+        },
+        '.layout-debug': {
+          outline: '1px solid rgba(255, 0, 0, 0.2)',
+        }
+      }
+      addUtilities(newUtilities)
+    }
   ],
 };
 

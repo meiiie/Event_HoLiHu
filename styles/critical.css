@@ -1,0 +1,51 @@
+/* Critical CSS - Những styles cần thiết nhất để đảm bảo layout không bị vỡ */
+
+/* Container styles */
+.container {
+  width: 100% !important;
+  max-width: 1400px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+}
+
+@media (min-width: 640px) {
+  .container {
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+  }
+}
+
+/* Base html/body styles */
+html, body {
+  min-height: 100vh !important;
+  width: 100% !important;
+}
+
+body {
+  font-family: var(--font-inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif) !important;
+  line-height: 1.5 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: relative !important;
+}
+
+/* Emergency fixes for when CSS doesn't load correctly */
+.css-emergency-fixes {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  background-color: #fff !important;
+  color: #333 !important;
+}
+
+.dark .css-emergency-fixes {
+  background-color: #111 !important;
+  color: #eee !important;
+}
