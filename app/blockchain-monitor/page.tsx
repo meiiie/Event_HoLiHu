@@ -594,7 +594,7 @@ export default function BlockchainMonitorPage() {
         "24h": now - 24 * 60 * 60 * 1000,
         "7d": now - 7 * 24 * 60 * 60 * 1000,
         "30d": now - 30 * 24 * 60 * 60 * 1000,
-      }[timeFilter]
+      }[timeFilter] ?? now // Fallback to current time if timeFilter doesn't match any key
 
       filtered = filtered.filter((event) => event.timestamp >= timeLimit)
     }
