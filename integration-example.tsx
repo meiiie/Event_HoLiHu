@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import BlockchainEventMonitor from "../components/blockchain/BlockchainEventMonitor"
+import BlockchainEventMonitor from "@/components/blockchain/BlockchainEventMonitor"
 import { ArrowLeft } from "lucide-react"
 import { ContractAddresses } from "@/lib/contract-addresses"
 
