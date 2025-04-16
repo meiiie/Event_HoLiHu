@@ -3,4 +3,4 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://event-monitor.holihu.online/sitemap.xml
+Sitemap: https://event.holihu.online/sitemap.xml
