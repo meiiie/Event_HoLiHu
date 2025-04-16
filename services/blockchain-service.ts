@@ -43,7 +43,7 @@ export const BlockchainService = {
       // Update statistics after saving event
       await this.updateStatistics()
 
-      return data
+      return data as BlockchainEvent
     } catch (error) {
       console.error("Error in saveEvent:", error)
       return null
@@ -84,7 +84,7 @@ export const BlockchainService = {
         return []
       }
 
-      return data || []
+      return data as BlockchainEvent[] || []
     } catch (error) {
       console.error("Error in getEvents:", error)
       return []
@@ -101,7 +101,7 @@ export const BlockchainService = {
         throw error
       }
 
-      return data || []
+      return data as ContractConfig[] || []
     } catch (error) {
       console.error("Error in getContractConfigs:", error)
       throw error
@@ -124,7 +124,7 @@ export const BlockchainService = {
         throw error
       }
 
-      return data
+      return data as ContractConfig
     } catch (error) {
       console.error("Error in updateContractConfig:", error)
       throw error
@@ -180,7 +180,7 @@ export const BlockchainService = {
         return null
       }
 
-      return data
+      return data as EventStatistics
     } catch (error) {
       console.error("Error in getStatistics:", error)
       return null
@@ -241,7 +241,7 @@ export const BlockchainService = {
         return null
       }
 
-      return data
+      return data as EventStatistics
     } catch (error) {
       console.error("Error in updateStatistics:", error)
       return null
@@ -262,7 +262,7 @@ export const BlockchainService = {
         console.error("Error fetching session:", error)
       }
 
-      return data
+      return data as BlockchainSession
     } catch (error) {
       console.error("Error in getSession:", error)
       return null
@@ -287,7 +287,7 @@ export const BlockchainService = {
         return null
       }
 
-      return data
+      return data as BlockchainSession
     } catch (error) {
       console.error("Error in createOrUpdateSession:", error)
       return null
