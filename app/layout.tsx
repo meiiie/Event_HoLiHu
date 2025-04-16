@@ -19,8 +19,8 @@ const spaceGrotesk = Space_Grotesk({
 })
 
 export const metadata: Metadata = {
-  title: 'HoLiHu Blockchain Monitor | Event Listener',
-  description: 'Professional blockchain event monitoring and tracking system for the HoLiHu network',
+  title: 'Blockchain Event Listener',
+  description: 'Monitor and visualize blockchain events',
   generator: 'Next.js',
   keywords: ['blockchain', 'HoLiHu', 'events', 'monitor', 'ethereum', 'smart contract', 'DApp', 'blockchain analytics'],
   authors: [{ name: 'HoLiHu Team' }],
@@ -60,7 +60,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="vi" suppressHydrationWarning className="scroll-smooth">
+    <html lang="en" suppressHydrationWarning className="scroll-smooth">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />

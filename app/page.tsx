@@ -215,3 +215,5 @@ export default function HomePage() {
     </div>
   )
 }
+
+// Remove the duplicate Home function since we already have HomePage as the default export
