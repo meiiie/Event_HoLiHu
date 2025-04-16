@@ -2,8 +2,8 @@
 
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Loader2, ActivitySquare } from "lucide-react"
-import { Card, CardContent } from "@/components/ui/card"
+import { Loader2, Activity } from "lucide-react"
+import Head from "next/head"
 
 export default function HomePage() {
   const router = useRouter()
@@ -34,33 +34,34 @@ export default function HomePage() {
       }
     }
 
-    // Add a small delay to show loading animation
-    const timer = setTimeout(() => {
-      checkInitialization()
-    }, 1000)
-
-    return () => clearTimeout(timer)
+    checkInitialization()
   }, [router])
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-background to-secondary/10 px-4">
-      <Card className="w-full max-w-md shadow-lg border-primary/10">
-        <CardContent className="flex flex-col items-center justify-center p-8 space-y-6">
-          <div className="flex items-center gap-3 mb-2">
-            <ActivitySquare className="h-10 w-10 text-primary" />
-            <h1 className="text-3xl font-bold tracking-tight">Event HoLiHu</h1>
-          </div>
-          <div className="text-center space-y-4">
-            <div className="flex items-center justify-center">
-              <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+    <>
+      <Head>
+        <title>Event HoLiHu - Giám sát blockchain</title>
+        <meta name="description" content="Hệ thống giám sát và phân tích sự kiện blockchain trên mạng HoLiHu" />
+        <meta name="keywords" content="blockchain, ethereum, events, smart contracts, monitoring, HoLiHu" />
+      </Head>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-background to-muted/20">
+        <div className="flex flex-col items-center text-center max-w-md mx-auto px-4">
+          <div className="relative mb-6">
+            <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary opacity-20 blur-xl rounded-full"></div>
+            <div className="relative bg-background p-4 rounded-full border shadow-md">
+              <Activity className="h-12 w-12 text-primary" />
             </div>
-            <h2 className="text-xl font-medium">Đang tải ứng dụng giám sát blockchain...</h2>
-            <p className="text-muted-foreground">
-              Hệ thống giám sát sự kiện blockchain trên mạng HoLiHu
-            </p>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+          <h1 className="text-3xl font-bold tracking-tight mb-2">Event HoLiHu</h1>
+          <p className="text-muted-foreground mb-8">
+            Hệ thống giám sát sự kiện blockchain trên mạng HoLiHu
+          </p>
+          <div className="flex items-center space-x-4">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <p className="text-lg">Đang tải ứng dụng...</p>
+          </div>
+        </div>
+      </div>
+    </>
   )
 }

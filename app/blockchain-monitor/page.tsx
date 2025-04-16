@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback, useRef, useMemo } from "react"
 import { ethers } from "ethers"
+import { PageTitle } from "@/components/page-title"
 import {
   Activity,
   Search,
@@ -14,17 +15,20 @@ import {
   Settings,
   Save,
   LineChart,
+  Info,
+  Calendar,
 } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { useToast } from "@/hooks/use-toast"
 import { ContractAddresses, getTransactionUrl } from "@/lib/contract-addresses"
 import type { BlockchainEvent, ContractConfig, EventStatistics } from "@/lib/supabase"
@@ -39,7 +43,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { format } from "date-fns"
+import { format, subHours } from "date-fns"
 import { vi } from "date-fns/locale"
 import {
   Chart as ChartJS,
@@ -52,9 +56,12 @@ import {
   Legend,
   BarElement,
   ArcElement,
+  PieController,
 } from "chart.js"
-import { getContract, cleanupProviders, CHAIN_ID, getCurrentBlockNumber } from "@/lib/blockchain-provider"
-import { convertBigIntToString, determineEventType, formatEventName } from "@/lib/utils"
+import { Line, Bar, Pie } from "react-chartjs-2"
+import { getContract, cleanupProviders, getEventsFromContract, CHAIN_ID, getCurrentBlockNumber } from "@/lib/blockchain-provider"
+import { convertBigIntToString, determineEventType, formatEventName, formatTimeAgo } from "@/lib/utils"
+import { CSVLink } from "react-csv"
 
 // Register ChartJS components
 ChartJS.register(
@@ -64,9 +71,10 @@ ChartJS.register(
   LineElement,
   BarElement,
   ArcElement,
+  PieController,
   Title,
   ChartTooltip,
-  Legend,
+  Legend
 )
 
 // ABI for events based on the documentation
@@ -146,6 +154,15 @@ const CONTRACT_ABIS = {
   ],
 }
 
+// Tùy chọn khoảng thời gian cho filter
+const TIME_FILTER_OPTIONS = [
+  { value: "1h", label: "1 giờ trước" },
+  { value: "24h", label: "24 giờ trước" },
+  { value: "7d", label: "7 ngày trước" },
+  { value: "30d", label: "30 ngày trước" },
+  { value: "all", label: "Tất cả" },
+]
+
 // Component chính
 export default function BlockchainMonitorPage() {
   const [events, setEvents] = useState<BlockchainEvent[]>([])
@@ -157,6 +174,7 @@ export default function BlockchainMonitorPage() {
   const [activeTab, setActiveTab] = useState<string>("events")
   const [contractFilter, setContractFilter] = useState<string>("all")
   const [eventTypeFilter, setEventTypeFilter] = useState<string>("all")
+  const [timeFilter, setTimeFilter] = useState<string>("all")
   const [stats, setStats] = useState<EventStatistics>({
     id: 1,
     total_events: 0,
@@ -219,11 +237,11 @@ export default function BlockchainMonitorPage() {
     try {
       const events = await BlockchainService.getEvents({ limit: 500 })
       setEvents(events)
-      updateFilteredEvents(events, searchTerm, contractFilter, eventTypeFilter)
+      updateFilteredEvents(events, searchTerm, contractFilter, eventTypeFilter, timeFilter)
     } catch (error) {
       console.error("Error fetching events:", error)
     }
-  }, [searchTerm, contractFilter, eventTypeFilter])
+  }, [searchTerm, contractFilter, eventTypeFilter, timeFilter])
 
   // Fetch statistics
   const fetchStats = useCallback(async () => {
@@ -541,6 +559,7 @@ export default function BlockchainMonitorPage() {
     search: string,
     contractFilter: string,
     eventTypeFilter: string,
+    timeFilter: string,
   ) => {
     let filtered = [...allEvents]
 
@@ -566,6 +585,19 @@ export default function BlockchainMonitorPage() {
       )
     }
 
+    // Lọc theo khoảng thời gian
+    if (timeFilter !== "all") {
+      const now = Date.now()
+      const timeLimit = {
+        "1h": now - 1 * 60 * 60 * 1000,
+        "24h": now - 24 * 60 * 60 * 1000,
+        "7d": now - 7 * 24 * 60 * 60 * 1000,
+        "30d": now - 30 * 24 * 60 * 60 * 1000,
+      }[timeFilter]
+
+      filtered = filtered.filter((event) => event.timestamp >= timeLimit)
+    }
+
     setFilteredEvents(filtered)
   }
 
@@ -585,18 +617,6 @@ export default function BlockchainMonitorPage() {
       default:
         return { label: "Khác", color: "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300" }
     }
-  }
-
-  // Hàm định dạng thời gian
-  const formatTimeAgo = (timestamp: number) => {
-    if (!timestamp) return "Chưa có"
-
-    const seconds = Math.floor((Date.now() - timestamp) / 1000)
-
-    if (seconds < 60) return `${seconds} giây trước`
-    if (seconds < 3600) return `${Math.floor(seconds / 60)} phút trước`
-    if (seconds < 86400) return `${Math.floor(seconds / 3600)} giờ trước`
-    return `${Math.floor(seconds / 86400)} ngày trước`
   }
 
   // Hàm xuất dữ liệu sự kiện
@@ -815,7 +835,7 @@ export default function BlockchainMonitorPage() {
                   value={searchTerm}
                   onChange={(e) => {
                     setSearchTerm(e.target.value)
-                    updateFilteredEvents(events, e.target.value, contractFilter, eventTypeFilter)
+                    updateFilteredEvents(events, e.target.value, contractFilter, eventTypeFilter, timeFilter)
                   }}
                 />
               </div>
@@ -825,7 +845,7 @@ export default function BlockchainMonitorPage() {
               value={contractFilter}
               onValueChange={(value) => {
                 setContractFilter(value)
-                updateFilteredEvents(events, searchTerm, value, eventTypeFilter)
+                updateFilteredEvents(events, searchTerm, value, eventTypeFilter, timeFilter)
               }}
             >
               <SelectTrigger className="w-full md:w-[180px]">
@@ -847,7 +867,7 @@ export default function BlockchainMonitorPage() {
               value={eventTypeFilter}
               onValueChange={(value) => {
                 setEventTypeFilter(value)
-                updateFilteredEvents(events, searchTerm, contractFilter, value)
+                updateFilteredEvents(events, searchTerm, contractFilter, value, timeFilter)
               }}
             >
               <SelectTrigger className="w-full md:w-[180px]">
@@ -861,6 +881,25 @@ export default function BlockchainMonitorPage() {
                 <SelectItem value="token">Token</SelectItem>
                 <SelectItem value="system">Hệ thống</SelectItem>
                 <SelectItem value="other">Khác</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={timeFilter}
+              onValueChange={(value) => {
+                setTimeFilter(value)
+                updateFilteredEvents(events, searchTerm, contractFilter, eventTypeFilter, value)
+              }}
+            >
+              <SelectTrigger className="w-full md:w-[180px]">
+                <SelectValue placeholder="Khoảng thời gian" />
+              </SelectTrigger>
+              <SelectContent>
+                {TIME_FILTER_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -887,7 +926,7 @@ export default function BlockchainMonitorPage() {
               <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">Chưa có sự kiện nào</h3>
               <p className="text-gray-500 dark:text-gray-400">
-                {searchTerm || contractFilter !== "all" || eventTypeFilter !== "all"
+                {searchTerm || contractFilter !== "all" || eventTypeFilter !== "all" || timeFilter !== "all"
                   ? "Không tìm thấy sự kiện nào phù hợp với bộ lọc. Hãy thử thay đổi bộ lọc."
                   : "Các sự kiện blockchain sẽ xuất hiện ở đây khi có hoạt động mới"}
               </p>
@@ -973,7 +1012,451 @@ export default function BlockchainMonitorPage() {
           )}
         </TabsContent>
 
-        {/* Các tab khác giữ nguyên */}
+        {/* Tab thống kê */}
+        <TabsContent value="stats" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Thống kê theo hợp đồng */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Phân bố sự kiện theo hợp đồng</CardTitle>
+                <CardDescription>
+                  Số lượng sự kiện được ghi nhận từ mỗi hợp đồng
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pb-6">
+                {isLoading ? (
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-4/5" />
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-4 w-2/3" />
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {Object.entries(stats.events_by_contract || {})
+                      .sort((a, b) => b[1] - a[1])
+                      .map(([contract, count]) => (
+                        <div key={contract} className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="font-mono">
+                              {contract}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span className="font-semibold">{count}</span>
+                            <span className="text-xs text-muted-foreground">sự kiện</span>
+                          </div>
+                        </div>
+                      ))}
+
+                    {Object.keys(stats.events_by_contract || {}).length === 0 && (
+                      <p className="text-center text-muted-foreground py-4">
+                        Chưa có dữ liệu thống kê theo hợp đồng
+                      </p>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Thống kê theo loại sự kiện */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Phân bố sự kiện theo loại</CardTitle>
+                <CardDescription>
+                  Số lượng sự kiện được phân loại theo từng nhóm
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pb-6">
+                {isLoading ? (
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-4/5" />
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-4 w-2/3" />
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {Object.entries(stats.events_by_type || {})
+                      .sort((a, b) => b[1] - a[1])
+                      .map(([type, count]) => {
+                        const eventTypeInfo = formatEventType(type)
+                        return (
+                          <div key={type} className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Badge className={eventTypeInfo.color}>{eventTypeInfo.label}</Badge>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="font-semibold">{count}</span>
+                              <span className="text-xs text-muted-foreground">sự kiện</span>
+                            </div>
+                          </div>
+                        )
+                      })}
+
+                    {Object.keys(stats.events_by_type || {}).length === 0 && (
+                      <p className="text-center text-muted-foreground py-4">
+                        Chưa có dữ liệu thống kê theo loại sự kiện
+                      </p>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Thống kê hoạt động gần đây */}
+            <Card className="col-span-1 md:col-span-2">
+              <CardHeader>
+                <CardTitle>Hoạt động gần đây</CardTitle>
+                <CardDescription>
+                  Tổng hợp các hoạt động và sự kiện blockchain trong 24 giờ qua
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="flex flex-col items-center justify-center p-4 border rounded-lg">
+                    <span className="text-muted-foreground mb-1">Tổng số sự kiện hôm nay</span>
+                    <span className="text-4xl font-bold">
+                      {events.filter(
+                        (e) => e.timestamp > Date.now() - 24 * 60 * 60 * 1000
+                      ).length}
+                    </span>
+                  </div>
+                  
+                  <div className="flex flex-col items-center justify-center p-4 border rounded-lg">
+                    <span className="text-muted-foreground mb-1">Sự kiện/giờ</span>
+                    <span className="text-4xl font-bold">{stats.events_per_hour}</span>
+                  </div>
+                  
+                  <div className="flex flex-col items-center justify-center p-4 border rounded-lg">
+                    <span className="text-muted-foreground mb-1">Sự kiện gần nhất</span>
+                    <span className="text-3xl font-bold">{formatTimeAgo(stats.last_event_time)}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Xuất dữ liệu sự kiện */}
+          <div className="flex justify-end mt-4">
+            {events.length > 0 && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="inline-block">
+                      <CSVLink
+                        data={events.map(event => ({
+                          EventId: event.event_id,
+                          EventName: formatEventName(event.event_name),
+                          ContractName: event.contract_name,
+                          ContractAddress: event.contract_address,
+                          BlockNumber: event.block_number,
+                          TransactionHash: event.transaction_hash,
+                          Timestamp: new Date(event.timestamp).toLocaleString("vi-VN"),
+                          EventType: formatEventType(event.event_type).label
+                        }))}
+                        filename={`blockchain-events-${new Date().toISOString().split('T')[0]}.csv`}
+                        className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 py-2"
+                      >
+                        <Download className="mr-2 h-4 w-4" />
+                        Xuất báo cáo CSV
+                      </CSVLink>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Tải xuống báo cáo chi tiết dưới dạng tệp CSV</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
+        </TabsContent>
+
+        {/* Tab biểu đồ */}
+        <TabsContent value="charts" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Biểu đồ sự kiện theo thời gian */}
+            <Card className="col-span-1 md:col-span-2">
+              <CardHeader>
+                <CardTitle>Sự kiện theo thời gian</CardTitle>
+                <CardDescription>Phân bố sự kiện blockchain theo giờ trong 24 giờ qua</CardDescription>
+              </CardHeader>
+              <CardContent className="pt-2">
+                {isLoading ? (
+                  <div className="h-[300px] w-full flex items-center justify-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                  </div>
+                ) : timeSeriesData.labels.length > 0 ? (
+                  <div className="h-[300px]">
+                    <Line
+                      data={timeSeriesData}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                          y: {
+                            beginAtZero: true,
+                            ticks: {
+                              precision: 0,
+                            },
+                          },
+                        },
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="h-[300px] flex items-center justify-center">
+                    <p className="text-muted-foreground">Không có đủ dữ liệu để hiển thị biểu đồ</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Biểu đồ phân bố loại sự kiện */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Phân bố loại sự kiện</CardTitle>
+                <CardDescription>Biểu đồ tròn thể hiện tỷ lệ các loại sự kiện</CardDescription>
+              </CardHeader>
+              <CardContent className="pt-2">
+                {isLoading ? (
+                  <div className="h-[300px] w-full flex items-center justify-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                  </div>
+                ) : Object.keys(stats.events_by_type || {}).length > 0 ? (
+                  <div className="h-[300px]">
+                    <Pie
+                      data={{
+                        labels: Object.entries(stats.events_by_type || {}).map(([type]) =>
+                          formatEventType(type).label
+                        ),
+                        datasets: [
+                          {
+                            data: Object.entries(stats.events_by_type || {}).map(([, count]) => count),
+                            backgroundColor: [
+                              "rgba(34, 197, 94, 0.7)", // green
+                              "rgba(59, 130, 246, 0.7)", // blue
+                              "rgba(168, 85, 247, 0.7)", // purple
+                              "rgba(245, 158, 11, 0.7)", // amber
+                              "rgba(99, 102, 241, 0.7)", // indigo
+                              "rgba(156, 163, 175, 0.7)", // gray
+                            ],
+                            borderColor: [
+                              "rgba(34, 197, 94, 1)",
+                              "rgba(59, 130, 246, 1)",
+                              "rgba(168, 85, 247, 1)",
+                              "rgba(245, 158, 11, 1)",
+                              "rgba(99, 102, 241, 1)",
+                              "rgba(156, 163, 175, 1)",
+                            ],
+                            borderWidth: 1,
+                          },
+                        ],
+                      }}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="h-[300px] flex items-center justify-center">
+                    <p className="text-muted-foreground">Không có đủ dữ liệu để hiển thị biểu đồ</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Biểu đồ phân bố theo hợp đồng */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Sự kiện theo hợp đồng</CardTitle>
+                <CardDescription>Biểu đồ cột hiển thị số lượng sự kiện từ mỗi hợp đồng</CardDescription>
+              </CardHeader>
+              <CardContent className="pt-2">
+                {isLoading ? (
+                  <div className="h-[300px] w-full flex items-center justify-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                  </div>
+                ) : Object.keys(stats.events_by_contract || {}).length > 0 ? (
+                  <div className="h-[300px]">
+                    <Bar
+                      data={{
+                        labels: Object.entries(stats.events_by_contract || {}).map(
+                          ([contract]) => contract
+                        ),
+                        datasets: [
+                          {
+                            label: "Số lượng sự kiện",
+                            data: Object.entries(stats.events_by_contract || {}).map(
+                              ([, count]) => count
+                            ),
+                            backgroundColor: "rgba(99, 102, 241, 0.5)",
+                            borderColor: "rgba(99, 102, 241, 1)",
+                            borderWidth: 1,
+                          },
+                        ],
+                      }}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                          y: {
+                            beginAtZero: true,
+                            ticks: {
+                              precision: 0,
+                            },
+                          },
+                        },
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="h-[300px] flex items-center justify-center">
+                    <p className="text-muted-foreground">Không có đủ dữ liệu để hiển thị biểu đồ</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Tab cấu hình */}
+        <TabsContent value="settings" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Cấu hình theo dõi hợp đồng</CardTitle>
+              <CardDescription>
+                Quản lý danh sách hợp đồng blockchain được theo dõi và thiết lập các tùy chọn
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoading ? (
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="flex items-center justify-between border-b pb-4">
+                      <div>
+                        <Skeleton className="h-5 w-40 mb-1" />
+                        <Skeleton className="h-4 w-64" />
+                      </div>
+                      <Skeleton className="h-8 w-16" />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {monitorConfigs.length === 0 ? (
+                    <div className="text-center py-4">
+                      <p className="text-muted-foreground">Chưa có hợp đồng nào được cấu hình</p>
+                    </div>
+                  ) : (
+                    <ScrollArea className="h-[500px] pr-4">
+                      <div className="space-y-4">
+                        {monitorConfigs.map((config) => (
+                          <div key={config.contract_address} className="p-4 border rounded-lg">
+                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-3">
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <h3 className="font-medium">{config.contract_name}</h3>
+                                  <Badge variant={config.enabled ? "default" : "outline"}>
+                                    {config.enabled ? "Đang theo dõi" : "Đã tắt"}
+                                  </Badge>
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-1 font-mono">{config.contract_address}</p>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        variant={config.enabled ? "outline" : "default"}
+                                        size="sm"
+                                        onClick={() => toggleContractMonitoring(config.contract_name)}
+                                      >
+                                        {config.enabled ? "Tắt theo dõi" : "Bật theo dõi"}
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>{config.enabled ? "Tắt" : "Bật"} theo dõi sự kiện từ hợp đồng này</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                                <a
+                                  href={`https://explorer.holihu.online/address/${config.contract_address}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                                    <Info className="h-4 w-4" />
+                                  </Button>
+                                </a>
+                              </div>
+                            </div>
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                              <div className="flex items-center">
+                                <Label htmlFor={`from-block-${config.contract_name}`} className="mr-2">Block bắt đầu:</Label>
+                                <Input
+                                  id={`from-block-${config.contract_name}`}
+                                  type="number"
+                                  className="max-w-[120px]"
+                                  value={config.from_block}
+                                  onChange={(e) => {
+                                    const value = parseInt(e.target.value) || 0
+                                    setMonitorConfigs(prev =>
+                                      prev.map(c => c.contract_name === config.contract_name
+                                        ? { ...c, from_block: value }
+                                        : c
+                                      )
+                                    )
+                                  }}
+                                />
+                                <Button 
+                                  variant="outline" 
+                                  size="sm" 
+                                  className="ml-2"
+                                  onClick={() => setContractFromBlock(config.contract_name, parseInt(config.from_block.toString()))}
+                                >
+                                  Áp dụng
+                                </Button>
+                              </div>
+                              <div className="flex items-center ml-auto">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="ml-2"
+                                        onClick={() => setContractFromBlock(config.contract_name, currentBlockNumber)}
+                                      >
+                                        <Calendar className="h-4 w-4 mr-1" />
+                                        Từ block hiện tại
+                                      </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Đặt block bắt đầu là block hiện tại ({currentBlockNumber})</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+          
+          <div className="flex justify-end">
+            <Button onClick={refreshConnection}>
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Làm mới kết nối blockchain
+            </Button>
+          </div>
+        </TabsContent>
       </Tabs>
 
       {/* Dialog for changing QuanLyCuocBauCu address */}
