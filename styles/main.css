@@ -1,0 +1,15 @@
+/* File CSS chính - tập trung các dependency CSS */
+
+/* Reset CSS - đảm bảo kiểu dáng cơ bản nhất quán */
+@import './reset.css';
+
+/* Tiện ích animation */
+@import './animations.css';
+
+/* Animations dành riêng cho blockchain */
+@import './blockchain-animations.css';
+
+/* CSS gỡ lỗi */
+@import './debug.css';
+
+/* Thêm các file CSS khác nếu cần */

@@ -5,7 +5,16 @@
 const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
-const chalk = require('chalk');
+
+// Simple color functions for console output (no dependencies)
+const colors = {
+  blue: (text) => `\x1b[34m${text}\x1b[0m`,
+  green: (text) => `\x1b[32m${text}\x1b[0m`,
+  yellow: (text) => `\x1b[33m${text}\x1b[0m`,
+  red: (text) => `\x1b[31m${text}\x1b[0m`,
+  gray: (text) => `\x1b[90m${text}\x1b[0m`,
+  cyan: (text) => `\x1b[36m${text}\x1b[0m`,
+}
 
 // Config
 const projectRoot = path.resolve(__dirname, '..');
@@ -14,8 +23,8 @@ const cssFiles = glob.sync('**/*.css', {
   ignore: ['node_modules/**', '.next/**', 'out/**']
 });
 
-console.log(chalk.blue('🔍 Analyzing CSS files...'));
-console.log(chalk.gray(`Found ${cssFiles.length} CSS files\n`));
+console.log(colors.blue('🔍 Analyzing CSS files...'));
+console.log(colors.gray(`Found ${cssFiles.length} CSS files\n`));
 
 // Track total sizes
 let totalOriginalSize = 0;
@@ -28,8 +37,8 @@ cssFiles.forEach(filePath => {
   const fileSize = Buffer.byteLength(content, 'utf8');
   totalOriginalSize += fileSize;
   
-  console.log(chalk.cyan(`📁 ${filePath}`));
-  console.log(chalk.gray(`   Size: ${(fileSize / 1024).toFixed(2)} KB`));
+  console.log(colors.cyan(`📁 ${filePath}`));
+  console.log(colors.gray(`   Size: ${(fileSize / 1024).toFixed(2)} KB`));
   
   // Check for potential issues
   const issues = [];
@@ -55,22 +64,22 @@ cssFiles.forEach(filePath => {
   
   // Check for CSS variables
   const cssVarsCount = (content.match(/var\(--[a-zA-Z0-9_-]+\)/g) || []).length;
-  console.log(chalk.gray(`   CSS Variables: ${cssVarsCount}`));
+  console.log(colors.gray(`   CSS Variables: ${cssVarsCount}`));
   
   // Report issues
   if (issues.length > 0) {
     hasIssues = true;
-    console.log(chalk.yellow(`   Issues found:`));
-    issues.forEach(issue => console.log(chalk.yellow(`   ${issue}`)));
+    console.log(colors.yellow(`   Issues found:`));
+    issues.forEach(issue => console.log(colors.yellow(`   ${issue}`)));
   } else {
-    console.log(chalk.green(`   ✅ No issues detected`));
+    console.log(colors.green(`   ✅ No issues detected`));
   }
   
   console.log(''); // Empty line for spacing
 });
 
 // Import analysis
-console.log(chalk.blue('🔎 Analyzing CSS imports...'));
+console.log(colors.blue('🔎 Analyzing CSS imports...'));
 const jsFiles = glob.sync('**/*.{js,jsx,ts,tsx}', {
   cwd: projectRoot,
   ignore: ['node_modules/**', '.next/**', 'out/**', 'scripts/**']
@@ -84,27 +93,27 @@ jsFiles.forEach(file => {
   cssImports += importMatches.length;
 });
 
-console.log(chalk.gray(`${cssImports} CSS imports found in ${jsFiles.length} JS/TS files`));
+console.log(colors.gray(`${cssImports} CSS imports found in ${jsFiles.length} JS/TS files`));
 if (cssImports < 3) {
-  console.log(chalk.yellow(`⚠️  Low number of CSS imports detected (${cssImports}). Consider adding more explicit CSS imports.`));
+  console.log(colors.yellow(`⚠️  Low number of CSS imports detected (${cssImports}). Consider adding more explicit CSS imports.`));
 }
 
 // Summary
-console.log(chalk.blue('\n📊 CSS Summary'));
-console.log(chalk.gray(`Total CSS size: ${(totalOriginalSize / 1024).toFixed(2)} KB`));
-console.log(chalk.gray(`Average file size: ${(totalOriginalSize / cssFiles.length / 1024).toFixed(2)} KB`));
+console.log(colors.blue('\n📊 CSS Summary'));
+console.log(colors.gray(`Total CSS size: ${(totalOriginalSize / 1024).toFixed(2)} KB`));
+console.log(colors.gray(`Average file size: ${(totalOriginalSize / cssFiles.length / 1024).toFixed(2)} KB`));
 
 if (hasIssues) {
-  console.log(chalk.yellow('\n⚠️  Some issues were detected. Review the output for details.'));
-  console.log(chalk.gray('Consider addressing these issues to improve CSS performance and maintainability.'));
+  console.log(colors.yellow('\n⚠️  Some issues were detected. Review the output for details.'));
+  console.log(colors.gray('Consider addressing these issues to improve CSS performance and maintainability.'));
 } else {
-  console.log(chalk.green('\n✅ No significant issues found in your CSS files.'));
+  console.log(colors.green('\n✅ No significant issues found in your CSS files.'));
 }
 
-console.log(chalk.blue('\n💡 Recommendations:'));
-console.log(chalk.gray('1. Ensure CSS is imported explicitly in components that need it'));
-console.log(chalk.gray('2. Consider using @import in your CSS files to organize styles'));
-console.log(chalk.gray('3. Add CSS variables for consistent theming'));
-console.log(chalk.gray('4. Use proper import order: reset → base → components → utilities'));
+console.log(colors.blue('\n💡 Recommendations:'));
+console.log(colors.gray('1. Ensure CSS is imported explicitly in components that need it'));
+console.log(colors.gray('2. Consider using @import in your CSS files to organize styles'));
+console.log(colors.gray('3. Add CSS variables for consistent theming'));
+console.log(colors.gray('4. Use proper import order: reset → base → components → utilities'));
 
-console.log(chalk.green('\n✨ CSS analysis complete!'));
+console.log(colors.green('\n✨ CSS analysis complete!'));

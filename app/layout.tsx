@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import { Inter, Space_Grotesk } from 'next/font/google'
-import '../styles/reset.css'  // Import CSS reset first
-import '../styles/index.css'  // Import our combined CSS file
-import './globals.css'       // Then import globals.css with Tailwind
+// Import theo thứ tự đúng
+import '../styles/main.css'      // Import file CSS tổng hợp
+import './globals.css'           // Sau đó import globals.css với Tailwind
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/toaster'
 import { cn } from '@/lib/utils'

@@ -27,3 +27,16 @@
   padding: 2px 4px;
   color: rgba(99, 102, 241, 1);
 }
+
+.css-debug-indicator {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 5px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  z-index: 9999;
+  pointer-events: none;
+}
