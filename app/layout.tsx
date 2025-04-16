@@ -8,6 +8,7 @@ import { Toaster } from '@/components/ui/toaster'
 import { cn } from '@/lib/utils'
 import { Analytics } from '@/components/analytics'
 import { SiteHeader } from '@/components/site-header'
+import Script from 'next/script'
 
 // Define fonts - Inter for body text, Space Grotesk for headings
 const inter = Inter({ 
@@ -103,6 +104,9 @@ export default function RootLayout({
           <Toaster />
           <Analytics />
         </ThemeProvider>
+        
+        {/* Add CSS load check script */}
+        <Script src="/css-load-check.js" strategy="lazyOnload" />
       </body>
     </html>
   )

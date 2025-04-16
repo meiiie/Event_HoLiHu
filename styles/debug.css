@@ -20,3 +20,43 @@
   font-size: 12px;
   z-index: 9999;
 }
+
+/* CSS Debug helpers - chỉ hiển thị trong môi trường development */
+
+/* Debug outline cho component */
+.css-debug .component {
+  outline: 1px dashed rgba(99, 102, 241, 0.5);
+}
+
+/* Debug indicator - hiển thị khi CSS đã được tải */
+.css-debug-indicator {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(22, 163, 74, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+/* Hiển thị thông tin component mỗi khi hover */
+.css-debug [class*="blockchain-"] {
+  position: relative;
+}
+
+.css-debug [class*="blockchain-"]:hover::after {
+  content: attr(class);
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 2px 4px;
+  font-size: 10px;
+  white-space: nowrap;
+  z-index: 10;
+  border-radius: 2px;
+}

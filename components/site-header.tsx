@@ -2,6 +2,7 @@ import Link from "next/link"
 import { ThemeSwitch } from "@/components/theme-switch"
 import { Activity, Database, Globe } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import "../styles/main.css"
 
 export function SiteHeader() {
   return (

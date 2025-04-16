@@ -156,12 +156,21 @@ a:hover {
   }
 }
 
-/* Apply border-box by default */
-*,
+/* Apply border-box by default - Removed duplicate */
+*, 
 *::before,
 *::after {
-  @apply border-border;
   box-sizing: border-box;
+}
+
+/* Apply border styles via Tailwind classes */
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
 
 /* Animation keyframes */
@@ -254,9 +263,9 @@ a:hover {
   background-attachment: fixed;
 }
 
-/* Debug indicator for CSS loaded status */
+/* Debug indicator for CSS loaded status - updated version */
 .css-loaded::after {
-  content: "CSS v1.0.2";
+  content: "CSS v1.0.3";
   position: fixed;
   bottom: 10px;
   right: 10px;

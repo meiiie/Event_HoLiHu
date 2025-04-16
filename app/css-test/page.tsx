@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { CssDebugger } from "@/components/ui-elements"
+import { CSSDebugger } from "@/components/css-debugger"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -17,7 +17,7 @@ export default function CSSTestPage() {
         This page tests various CSS features to ensure they're working correctly.
       </p>
       
-      <CssDebugger />
+      <CSSDebugger />
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
         <TabsList>
